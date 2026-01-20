@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Controle de Contas a Pagar</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>📋 Controle de Contas a Pagar</h1>
+
+<div class="filtros">
+  <button onclick="carregarHoje()">Hoje</button>
+  <button onclick="carregarMes()">Mês</button>
+  <button onclick="carregarVencidas()">Vencidas</button>
+  <button onclick="carregarPagas()">Pagas</button>
+</div>
+
+<ul id="lista"></ul>
+
+<h2>➕ Nova Conta</h2>
+
+<div class="form">
+  <input id="descricao" placeholder="Descrição">
+  <input id="valor" type="number" placeholder="Valor">
+  <input id="data" type="date">
+
+  <select id="recorrencia">
+    <option value="nao">Única</option>
+    <option value="mensal">Mensal</option>
+    <option value="semanal">Semanal</option>
+    <option value="anual">Anual</option>
+  </select>
+
+  <button onclick="adicionarConta()">Salvar</button>
+</div>
+
+<script type="module" src="firebase.js"></script>
+<script type="module" src="contas.js"></script>
+
+</body>
+</html>
