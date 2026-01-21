@@ -1,62 +1,71 @@
-import { db } from "./firebase.js";
+import { db, auth } from "./firebase.js";
 
 import {
   collection,
   addDoc,
   getDocs,
   updateDoc,
-  doc
+  doc,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const lista = document.getElementById("lista");
 
-async function carregarContas(filtro) {
+onAuthStateChanged(auth, user => {
+  if (user) {
+    carregarContas(user.uid);
+  } else {
+    lista.innerHTML = "";
+  }
+});
+
+async function carregarContas(uid) {
   lista.innerHTML = "";
-  const snapshot = await getDocs(collection(db, "contas"));
+
+  const q = query(
+    collection(db, "contas"),
+    where("uid", "==", uid)
+  );
+
+  const snapshot = await getDocs(q);
   const hoje = new Date();
 
   snapshot.forEach(docSnap => {
-    const c = docSnap.data();
+    const conta = docSnap.data();
     const id = docSnap.id;
-    const venc = new Date(c.dataVencimento);
+    const venc = new Date(conta.dataVencimento);
 
-    let mostrar = false;
+    const li = document.createElement("li");
 
-    if (filtro === "pagas") mostrar = c.status === "pago";
-    if (filtro === "vencidas") mostrar = c.status === "pendente" && venc < hoje;
-    if (filtro === "hoje") mostrar = venc.toDateString() === hoje.toDateString();
-    if (filtro === "mes")
-      mostrar =
-        venc.getMonth() === hoje.getMonth() &&
-        venc.getFullYear() === hoje.getFullYear();
+    if (conta.status === "pago") li.classList.add("pago");
+    if (conta.status === "pendente" && venc < hoje)
+      li.classList.add("vencido");
 
-    if (!filtro) mostrar = true;
+    li.innerHTML = `
+      <span>
+        ${conta.descricao} - R$ ${conta.valor} - ${conta.dataVencimento}
+        ${conta.recorrente ? "🔄" : ""}
+      </span>
+      ${
+        conta.status === "pendente"
+          ? `<button onclick="pagar('${id}')">✔</button>`
+          : ""
+      }
+    `;
 
-    if (mostrar) {
-      const li = document.createElement("li");
-
-      li.className =
-        c.status === "pago"
-          ? "pago"
-          : venc < hoje
-          ? "vencido"
-          : "";
-
-      li.innerHTML = `
-        <span>${c.descricao} - R$ ${c.valor} - ${c.dataVencimento}</span>
-        ${
-          c.status === "pendente"
-            ? `<button onclick="pagar('${id}')">✔</button>`
-            : ""
-        }
-      `;
-      lista.appendChild(li);
-    }
+    lista.appendChild(li);
   });
 }
 
 window.adicionarConta = async function () {
+  const user = auth.currentUser;
+  if (!user) return;
+
   await addDoc(collection(db, "contas"), {
+    uid: user.uid,
     descricao: descricao.value,
     valor: Number(valor.value),
     dataVencimento: data.value,
@@ -65,20 +74,47 @@ window.adicionarConta = async function () {
     status: "pendente",
     criadoEm: new Date().toISOString()
   });
-  carregarContas();
+
+  carregarContas(user.uid);
 };
 
 window.pagar = async function (id) {
-  await updateDoc(doc(db, "contas", id), {
+  const ref = doc(db, "contas", id);
+  const snapshot = await getDocs(collection(db, "contas"));
+
+  let contaAtual;
+  snapshot.forEach(d => {
+    if (d.id === id) contaAtual = d.data();
+  });
+
+  await updateDoc(ref, {
     status: "pago",
     dataPagamento: new Date().toISOString()
   });
-  carregarContas();
+
+  if (contaAtual.recorrente) {
+    await gerarProximaConta(contaAtual);
+  }
+
+  carregarContas(contaAtual.uid);
 };
 
-window.carregarHoje = () => carregarContas("hoje");
-window.carregarMes = () => carregarContas("mes");
-window.carregarVencidas = () => carregarContas("vencidas");
-window.carregarPagas = () => carregarContas("pagas");
+async function gerarProximaConta(conta) {
+  const novaData = new Date(conta.dataVencimento);
 
-carregarContas();
+  if (conta.tipoRecorrencia === "mensal")
+    novaData.setMonth(novaData.getMonth() + 1);
+
+  if (conta.tipoRecorrencia === "semanal")
+    novaData.setDate(novaData.getDate() + 7);
+
+  if (conta.tipoRecorrencia === "anual")
+    novaData.setFullYear(novaData.getFullYear() + 1);
+
+  await addDoc(collection(db, "contas"), {
+    ...conta,
+    dataVencimento: novaData.toISOString().split("T")[0],
+    status: "pendente",
+    criadoEm: new Date().toISOString()
+  });
+}
