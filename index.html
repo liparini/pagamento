@@ -1,64 +1,114 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Controle de Contas</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Dashboard Financeiro</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Estilo simples (pode trocar depois) -->
+  <style>
+    body {
+      background: #0f1220;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { margin-bottom: 10px; }
+    section {
+      background: #1c1f36;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+    }
+    input, select, button {
+      padding: 6px;
+      margin: 4px;
+      border-radius: 4px;
+      border: none;
+    }
+    button {
+      cursor: pointer;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #2a2e52;
+      padding: 10px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .acoes button {
+      margin-left: 5px;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="loginBox">
-  <h2>🔐 Acesso</h2>
-  <button id="btnGoogle">Entrar com Google</button>
-</div>
-
-<!-- APP -->
-<div id="app" style="display:none">
-
-<header>
+  <!-- ================= DASHBOARD ================= -->
   <h1>📊 Dashboard Financeiro</h1>
-  <div>
-    A pagar: <b id="qtdPagar">0</b> |
-    Feitas: <b id="qtdFeitas">0</b> |
-    Vencidas: <b id="qtdVencidas">0</b>
-    <button id="btnLogout">Sair</button>
-  </div>
-</header>
 
-<section class="box">
-  <h3>➕ Nova Conta</h3>
-  <input id="descricao" placeholder="Descrição">
-  <input id="vencimento" type="date">
-  <label>
-    <input type="checkbox" id="recorrente"> Recorrente mensal
-  </label>
-  <button id="btnSalvar">Salvar</button>
-</section>
+  <section>
+    A pagar: <strong><span id="qtdAbertas">0</span></strong> |
+    Feitas: <strong><span id="qtdFeitas">0</span></strong> |
+    Vencidas: <strong><span id="qtdVencidas">0</span></strong>
+    <button onclick="logout()" style="float:right">Sair</button>
+  </section>
 
-<section class="box">
-  <h3>🔎 Filtros</h3>
-  <input type="month" id="filtroMes">
-  <select id="filtroStatus">
-    <option value="">Todos</option>
-    <option value="pendente">A pagar</option>
-    <option value="feito">Feitas</option>
-    <option value="vencida">Vencidas</option>
-  </select>
-  <button id="btnFiltrar">Filtrar</button>
-</section>
+  <!-- ================= NOVA CONTA ================= -->
+  <section>
+    <h3>➕ Nova Conta</h3>
 
-<section class="box">
-  <h3>📋 Contas</h3>
-  <ul id="listaContas"></ul>
-</section>
+    <input
+      type="text"
+      id="descricao"
+      placeholder="Descrição da conta"
+    />
 
-</div>
+    <input
+      type="date"
+      id="vencimento"
+    />
 
-<script type="module" src="firebase.js"></script>
-<script type="module" src="auth.js"></script>
-<script type="module" src="contas.js"></script>
+    <label>
+      <input type="checkbox" id="recorrente" />
+      Recorrente mensal
+    </label>
+
+    <button id="salvarConta">Salvar</button>
+  </section>
+
+  <!-- ================= FILTROS ================= -->
+  <section>
+    <h3>🔎 Filtros</h3>
+
+    <input type="month" id="filtroMes" />
+
+    <select id="filtroStatus">
+      <option value="todos">Todos</option>
+      <option value="aberta">A pagar</option>
+      <option value="feita">Pagas</option>
+    </select>
+
+    <button id="btnFiltrar">Filtrar</button>
+  </section>
+
+  <!-- ================= LISTA ================= -->
+  <section>
+    <h3>📋 Contas</h3>
+    <ul id="listaContas"></ul>
+  </section>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script type="module" src="./firebase.js"></script>
+  <script type="module" src="./contas.js"></script>
 
 </body>
 </html>
