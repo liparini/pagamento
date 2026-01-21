@@ -1,51 +1,22 @@
-// auth.js
 import { auth } from "./firebase.js";
 import {
   GoogleAuthProvider,
   signInWithPopup,
-  onAuthStateChanged,
-  signOut
+  signOut,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// Provedor Google
-const provider = new GoogleAuthProvider();
+const btnGoogle = document.getElementById("btnGoogle");
+const btnLogout = document.getElementById("btnLogout");
 
-// LOGIN COM GOOGLE
-window.loginGoogle = function () {
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      console.log("Usuário logado:", result.user);
-    })
-    .catch((error) => {
-      console.error("Erro no login:", error);
-      alert("Erro ao fazer login com Google");
-    });
+btnGoogle.onclick = () => {
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(auth, provider);
 };
 
-// LOGOUT
-window.logout = function () {
-  signOut(auth)
-    .then(() => {
-      console.log("Logout realizado");
-    })
-    .catch((error) => {
-      console.error("Erro ao sair:", error);
-    });
-};
+btnLogout.onclick = () => signOut(auth);
 
-// OBSERVADOR DE LOGIN
-onAuthStateChanged(auth, (user) => {
-  const loginDiv = document.getElementById("login");
-  const appDiv = document.getElementById("app");
-
-  if (user) {
-    // Usuário autenticado
-    loginDiv.style.display = "none";
-    appDiv.style.display = "block";
-    console.log("Usuário autenticado:", user.email);
-  } else {
-    // Não autenticado
-    loginDiv.style.display = "block";
-    appDiv.style.display = "none";
-  }
+onAuthStateChanged(auth, user => {
+  document.getElementById("loginBox").style.display = user ? "none" : "block";
+  document.getElementById("app").style.display = user ? "block" : "none";
 });
