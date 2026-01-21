@@ -1,24 +1,142 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: Arial;
-  max-width: 600px;
-  margin: auto;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f4f6f8;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+section {
+  background: #ffffff;
+  margin: 20px auto;
   padding: 20px;
+  max-width: 700px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-input, button {
-  width: 100%;
-  padding: 8px;
-  margin: 5px 0;
+h2, h3 {
+  margin-top: 0;
+  color: #2c3e50;
 }
 
+/* LOGIN */
+#loginArea {
+  text-align: center;
+}
+
+#btnLogin,
+#btnLogout {
+  background: #4285f4;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#btnLogout {
+  background: #e74c3c;
+}
+
+#btnLogin:hover {
+  background: #3367d6;
+}
+
+#btnLogout:hover {
+  background: #c0392b;
+}
+
+/* FORM */
+form {
+  display: grid;
+  gap: 10px;
+}
+
+input[type="text"],
+input[type="date"] {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+label {
+  font-size: 14px;
+}
+
+form button {
+  background: #2ecc71;
+  border: none;
+  padding: 12px;
+  font-size: 15px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+form button:hover {
+  background: #27ae60;
+}
+
+/* DASHBOARD */
+#dashboard p {
+  margin: 6px 0;
+  font-weight: 500;
+}
+
+#dashboard span {
+  font-weight: bold;
+}
+
+/* LISTA */
 ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 li {
-  background: #f2f2f2;
-  margin: 8px 0;
-  padding: 10px;
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+li b {
+  font-size: 16px;
+}
+
+li button {
+  margin-top: 8px;
+  background: #3498db;
+  border: none;
+  padding: 8px 12px;
+  color: white;
   border-radius: 5px;
+  cursor: pointer;
+}
+
+li button:hover {
+  background: #2980b9;
+}
+
+/* STATUS VISUAL */
+li[data-status="feito"] {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+/* RESPONSIVO */
+@media (max-width: 600px) {
+  section {
+    margin: 10px;
+    padding: 15px;
+  }
 }
