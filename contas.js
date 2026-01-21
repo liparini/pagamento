@@ -156,3 +156,4 @@ window.editarConta = id => {
   document.getElementById("descricao").value = conta.descricao;
   document.getElementById("vencimento").value = conta.vencimento;
 };
+
