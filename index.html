@@ -8,44 +8,54 @@
 
 <body>
 
-<!-- 🔐 LOGIN -->
+<!-- LOGIN -->
 <div id="loginBox">
   <h2>🔐 Acesso</h2>
   <button id="btnGoogle">Entrar com Google</button>
 </div>
 
-<!-- 📊 APP -->
+<!-- APP -->
 <div id="app" style="display:none">
 
-  <header>
-    <h1>📊 Dashboard Financeiro</h1>
-    <button id="btnLogout">Sair</button>
-  </header>
-
-  <section id="dashboard">
+<header>
+  <h1>📊 Dashboard Financeiro</h1>
+  <div>
     A pagar: <b id="qtdPagar">0</b> |
     Feitas: <b id="qtdFeitas">0</b> |
     Vencidas: <b id="qtdVencidas">0</b>
-  </section>
+    <button id="btnLogout">Sair</button>
+  </div>
+</header>
 
-  <section>
-    <h3>➕ Nova Conta</h3>
-    <input id="descricao" placeholder="Descrição">
-    <input id="vencimento" type="date">
-    <label>
-      <input type="checkbox" id="recorrente"> Recorrente mensal
-    </label>
-    <button id="btnSalvar">Salvar</button>
-  </section>
+<section class="box">
+  <h3>➕ Nova Conta</h3>
+  <input id="descricao" placeholder="Descrição">
+  <input id="vencimento" type="date">
+  <label>
+    <input type="checkbox" id="recorrente"> Recorrente mensal
+  </label>
+  <button id="btnSalvar">Salvar</button>
+</section>
 
-  <section>
-    <h3>📋 Contas</h3>
-    <ul id="listaContas"></ul>
-  </section>
+<section class="box">
+  <h3>🔎 Filtros</h3>
+  <input type="month" id="filtroMes">
+  <select id="filtroStatus">
+    <option value="">Todos</option>
+    <option value="pendente">A pagar</option>
+    <option value="feito">Feitas</option>
+    <option value="vencida">Vencidas</option>
+  </select>
+  <button id="btnFiltrar">Filtrar</button>
+</section>
+
+<section class="box">
+  <h3>📋 Contas</h3>
+  <ul id="listaContas"></ul>
+</section>
 
 </div>
 
-<!-- ⚠️ ORDEM CORRETA -->
 <script type="module" src="firebase.js"></script>
 <script type="module" src="auth.js"></script>
 <script type="module" src="contas.js"></script>
