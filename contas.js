@@ -1,6 +1,6 @@
-import { app } from "./firebase.js";
+import { db, auth } from "./firebase.js";
+
 import {
-  getFirestore,
   collection,
   addDoc,
   query,
@@ -12,25 +12,25 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
-  getAuth,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-const db = getFirestore(app);
-const auth = getAuth(app);
 
 const form = document.getElementById("formConta");
 const lista = document.getElementById("listaContas");
 
 let uid = null;
 
+// Aguarda login
 onAuthStateChanged(auth, (user) => {
   if (user) {
     uid = user.uid;
     carregarContas();
+  } else {
+    lista.innerHTML = "";
   }
 });
 
+// Salvar conta
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -46,11 +46,20 @@ form.addEventListener("submit", async (e) => {
   form.reset();
 });
 
+// Listar contas
 function carregarContas() {
-  const q = query(collection(db, "contas"), where("uid", "==", uid));
+  const q = query(
+    collection(db, "contas"),
+    where("uid", "==", uid)
+  );
 
   onSnapshot(q, (snapshot) => {
     lista.innerHTML = "";
+
+    if (snapshot.empty) {
+      lista.innerHTML = "<li>Nenhuma conta cadastrada</li>";
+      return;
+    }
 
     snapshot.forEach((docSnap) => {
       const c = docSnap.data();
@@ -63,8 +72,9 @@ function carregarContas() {
         <button>Feito</button>
       `;
 
-      li.querySelector("button").onclick = () =>
+      li.querySelector("button").addEventListener("click", () => {
         updateDoc(doc(db, "contas", docSnap.id), { status: "feito" });
+      });
 
       lista.appendChild(li);
     });
