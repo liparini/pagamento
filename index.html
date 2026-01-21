@@ -2,40 +2,53 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard Financeiro</title>
+<title>Controle de Contas</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>📊 Dashboard Financeiro</h1>
-
-<div>
-  A pagar: <span id="qtdPagar">0</span><br>
-  Pagas: <span id="qtdPago">0</span><br>
-  Vencidas: <span id="qtdVencido">0</span>
+<!-- 🔐 LOGIN -->
+<div id="loginBox">
+  <h2>🔐 Acesso</h2>
+  <button id="btnGoogle">Entrar com Google</button>
 </div>
 
-<hr>
+<!-- 📊 APP -->
+<div id="app" style="display:none">
 
-<h2>➕ Nova Conta</h2>
+  <header>
+    <h1>📊 Dashboard Financeiro</h1>
+    <button id="btnLogout">Sair</button>
+  </header>
 
-<input id="descricao" placeholder="Descrição da conta">
-<input id="data" type="date">
-<label>
-  <input type="checkbox" id="recorrente"> Recorrente mensal
-</label>
+  <section id="dashboard">
+    A pagar: <b id="qtdPagar">0</b> |
+    Feitas: <b id="qtdFeitas">0</b> |
+    Vencidas: <b id="qtdVencidas">0</b>
+  </section>
 
-<button id="btnSalvar">Salvar</button>
+  <section>
+    <h3>➕ Nova Conta</h3>
+    <input id="descricao" placeholder="Descrição">
+    <input id="vencimento" type="date">
+    <label>
+      <input type="checkbox" id="recorrente"> Recorrente mensal
+    </label>
+    <button id="btnSalvar">Salvar</button>
+  </section>
 
-<hr>
+  <section>
+    <h3>📋 Contas</h3>
+    <ul id="listaContas"></ul>
+  </section>
 
-<h2>📋 Contas</h2>
-<ul id="listaContas"></ul>
+</div>
 
 <!-- ⚠️ ORDEM CORRETA -->
-<script type="module" src="./firebase.js"></script>
-<script type="module" src="./contas.js"></script>
+<script type="module" src="firebase.js"></script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="contas.js"></script>
 
 </body>
 </html>
