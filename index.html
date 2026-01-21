@@ -1,47 +1,41 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard Financeiro</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Dashboard Financeiro</title>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <h1>📊 Dashboard Financeiro</h1>
 
-<div class="dashboard">
-  <div class="card pagar">
-    A pagar
-    <span id="qtdPagar">0</span>
-  </div>
-
-  <div class="card pago">
-    Pagas
-    <span id="qtdPago">0</span>
-  </div>
-
-  <div class="card vencido">
-    Vencidas
-    <span id="qtdVencido">0</span>
-  </div>
+<div>
+  A pagar: <span id="qtdPagar">0</span><br>
+  Pagas: <span id="qtdPago">0</span><br>
+  Vencidas: <span id="qtdVencido">0</span>
 </div>
 
 <hr>
 
 <h2>➕ Nova Conta</h2>
+
 <input id="descricao" placeholder="Descrição da conta">
 <input id="data" type="date">
 <label>
   <input type="checkbox" id="recorrente"> Recorrente mensal
 </label>
-<button onclick="salvarConta()">Salvar</button>
+
+<button id="btnSalvar">Salvar</button>
 
 <hr>
 
 <h2>📋 Contas</h2>
 <ul id="listaContas"></ul>
 
-<script type="module" src="firebase.js"></script>
-<script type="module" src="contas.js"></script>
+<!-- ⚠️ ORDEM CORRETA -->
+<script type="module" src="./firebase.js"></script>
+<script type="module" src="./contas.js"></script>
+
 </body>
 </html>
