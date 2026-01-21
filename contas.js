@@ -1,18 +1,114 @@
-console.log("contas.js carregado");
-
-import { auth } from "./firebase.js";
+import { auth, db } from "./firebase.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  doc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-onAuthStateChanged(auth, (user) => {
-  console.log("auth mudou", user);
+const contasDiv = document.getElementById("contas");
 
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+  renderFormulario();
+  await listarContas(user.uid);
+});
+
+function renderFormulario() {
+  contasDiv.innerHTML = `
+    <h3>➕ Nova Conta</h3>
+
+    <input id="descricao" placeholder="Descrição">
+    <input id="valor" type="number" placeholder="Valor">
+    <input id="vencimento" type="date">
+
+    <button id="btnSalvar">Salvar</button>
+
+    <hr>
+    <h3>📋 Contas Cadastradas</h3>
+    <div id="listaContas"></div>
+  `;
+
+  document.getElementById("btnSalvar").onclick = salvarConta;
+}
+
+async function salvarConta() {
+  const user = auth.currentUser;
   if (!user) return;
 
-  const contasDiv = document.getElementById("contas");
+  const descricao = document.getElementById("descricao").value;
+  const valor = Number(document.getElementById("valor").value);
+  const vencimento = document.getElementById("vencimento").value;
 
-  contasDiv.innerHTML = `
-    <h3>TESTE OK</h3>
-    <input placeholder="Descrição">
-    <button>Salvar</button>
-  `;
-});
+  if (!descricao || !valor || !vencimento) {
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  try {
+    await addDoc(
+      collection(db, "users", user.uid, "contas"),
+      {
+        descricao,
+        valor,
+        vencimento,
+        paga: false,
+        criadoEm: serverTimestamp()
+      }
+    );
+
+    document.getElementById("descricao").value = "";
+    document.getElementById("valor").value = "";
+    document.getElementById("vencimento").value = "";
+
+    await listarContas(user.uid);
+  } catch (e) {
+    console.error("Erro ao salvar:", e);
+    alert("Erro ao salvar conta");
+  }
+}
+
+async function listarContas(uid) {
+  const lista = document.getElementById("listaContas");
+  lista.innerHTML = "";
+
+  const snapshot = await getDocs(
+    collection(db, "users", uid, "contas")
+  );
+
+  snapshot.forEach((docSnap) => {
+    const conta = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = `conta ${conta.paga ? "paga" : ""}`;
+
+    div.innerHTML = `
+      <span>
+        ${conta.descricao} — R$ ${conta.valor.toFixed(2)}<br>
+        Vencimento: ${conta.vencimento}
+      </span>
+      ${
+        conta.paga
+          ? ""
+          : `<button onclick="marcarPaga('${docSnap.id}')">Pagar</button>`
+      }
+    `;
+
+    lista.appendChild(div);
+  });
+}
+
+window.marcarPaga = async function (id) {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  await updateDoc(
+    doc(db, "users", user.uid, "contas", id),
+    { paga: true }
+  );
+
+  await listarContas(user.uid);
+};
