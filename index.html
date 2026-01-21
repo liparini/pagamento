@@ -1,49 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Controle Financeiro</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Controle Financeiro</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="login">
-  <h2>🔐 Login</h2>
-  <input id="email" placeholder="Email">
-  <input id="senha" type="password" placeholder="Senha">
-  <button onclick="login()">Entrar</button>
-  <button onclick="registrar()">Registrar</button>
-</div>
+  <!-- LOGIN -->
+  <div id="login">
+    <h1>Controle Financeiro</h1>
+    <p>Faça login para continuar</p>
 
-<div id="app" style="display:none">
-  <header>
-    <h1>💰 Controle Financeiro</h1>
-    <button onclick="logout()">Sair</button>
-  </header>
+    <button id="btnGoogle" onclick="loginGoogle()">
+      🔐 Entrar com Google
+    </button>
+  </div>
 
-  <section class="dashboard">
-    <div class="card" id="totalMes"></div>
-    <div class="card" id="totalPago"></div>
-    <div class="card" id="totalPendente"></div>
-  </section>
+  <!-- APLICAÇÃO -->
+  <div id="app" style="display:none">
 
-  <section class="form">
-    <input id="descricao" placeholder="Descrição">
-    <input id="valor" type="number">
-    <input id="data" type="date">
-    <select id="recorrencia">
-      <option value="nao">Única</option>
-      <option value="mensal">Mensal</option>
-    </select>
-    <button onclick="adicionarConta()">Salvar</button>
-  </section>
+    <header>
+      <h2>Meu Financeiro</h2>
+      <button onclick="logout()">Sair</button>
+    </header>
 
-  <ul id="lista"></ul>
-</div>
+    <main>
+      <section>
+        <h3>Dashboard</h3>
+        <div id="dashboard">
+          <p>Bem-vindo!</p>
+        </div>
+      </section>
 
-<script type="module" src="firebase.js"></script>
-<script type="module" src="auth.js"></script>
-<script type="module" src="contas.js"></script>
-<script type="module" src="dashboard.js"></script>
+      <section>
+        <h3>Contas</h3>
+        <div id="contas">
+          <!-- conteúdo do contas.js -->
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <!-- SCRIPTS (ORDEM IMPORTA) -->
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth.js"></script>
+  <script type="module" src="contas.js"></script>
+  <script type="module" src="dashboard.js"></script>
+
 </body>
 </html>
