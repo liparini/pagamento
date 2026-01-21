@@ -1,114 +1,113 @@
-import { auth, db } from "./firebase.js";
+import { db, auth } from "./firebase.js";
 import {
-  collection,
-  addDoc,
-  getDocs,
-  updateDoc,
-  doc,
-  serverTimestamp
+  collection, addDoc, getDocs, query, where,
+  updateDoc, doc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const contasDiv = document.getElementById("contas");
+const lista = document.getElementById("listaContas");
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
-  renderFormulario();
-  await listarContas(user.uid);
-});
-
-function renderFormulario() {
-  contasDiv.innerHTML = `
-    <h3>➕ Nova Conta</h3>
-
-    <input id="descricao" placeholder="Descrição">
-    <input id="valor" type="number" placeholder="Valor">
-    <input id="vencimento" type="date">
-
-    <button id="btnSalvar">Salvar</button>
-
-    <hr>
-    <h3>📋 Contas Cadastradas</h3>
-    <div id="listaContas"></div>
-  `;
-
-  document.getElementById("btnSalvar").onclick = salvarConta;
-}
-
-async function salvarConta() {
+window.salvarConta = async () => {
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) return alert("Usuário não autenticado");
 
-  const descricao = document.getElementById("descricao").value;
-  const valor = Number(document.getElementById("valor").value);
-  const vencimento = document.getElementById("vencimento").value;
+  await addDoc(collection(db, "contas"), {
+    descricao: descricao.value,
+    dataVencimento: data.value,
+    recorrente: recorrente.checked,
+    status: "pendente",
+    usuarioId: user.uid,
+    criadoEm: new Date()
+  });
 
-  if (!descricao || !valor || !vencimento) {
-    alert("Preencha todos os campos");
-    return;
-  }
+  descricao.value = "";
+  data.value = "";
+  recorrente.checked = false;
 
-  try {
-    await addDoc(
-      collection(db, "users", user.uid, "contas"),
-      {
-        descricao,
-        valor,
-        vencimento,
-        paga: false,
-        criadoEm: serverTimestamp()
-      }
-    );
+  carregarContas();
+};
 
-    document.getElementById("descricao").value = "";
-    document.getElementById("valor").value = "";
-    document.getElementById("vencimento").value = "";
-
-    await listarContas(user.uid);
-  } catch (e) {
-    console.error("Erro ao salvar:", e);
-    alert("Erro ao salvar conta");
-  }
-}
-
-async function listarContas(uid) {
-  const lista = document.getElementById("listaContas");
+window.carregarContas = async () => {
   lista.innerHTML = "";
 
-  const snapshot = await getDocs(
-    collection(db, "users", uid, "contas")
+  let pagar = 0, pago = 0, vencido = 0;
+  const hoje = new Date().toISOString().split("T")[0];
+
+  const q = query(
+    collection(db, "contas"),
+    where("usuarioId", "==", auth.currentUser.uid)
   );
 
-  snapshot.forEach((docSnap) => {
-    const conta = docSnap.data();
+  const snap = await getDocs(q);
 
-    const div = document.createElement("div");
-    div.className = `conta ${conta.paga ? "paga" : ""}`;
+  snap.forEach(docSnap => {
+    const c = docSnap.data();
+    let statusAtual = c.status;
 
-    div.innerHTML = `
-      <span>
-        ${conta.descricao} — R$ ${conta.valor.toFixed(2)}<br>
-        Vencimento: ${conta.vencimento}
-      </span>
-      ${
-        conta.paga
-          ? ""
-          : `<button onclick="marcarPaga('${docSnap.id}')">Pagar</button>`
-      }
+    // Atualiza vencidas automaticamente
+    if (statusAtual === "pendente" && c.dataVencimento < hoje) {
+      statusAtual = "vencido";
+      updateDoc(doc(db, "contas", docSnap.id), { status: "vencido" });
+    }
+
+    if (statusAtual === "pendente") pagar++;
+    if (statusAtual === "feito") pago++;
+    if (statusAtual === "vencido") vencido++;
+
+    lista.innerHTML += `
+      <li>
+        <strong>${c.descricao}</strong> | ${c.dataVencimento} | ${statusAtual}
+
+        ${statusAtual === "pendente" ? `
+          <button onclick="marcarFeito('${docSnap.id}', ${c.recorrente})">
+            Feito
+          </button>
+        ` : ""}
+
+        <button onclick="editarConta('${docSnap.id}', '${c.descricao}', '${c.dataVencimento}', ${c.recorrente})">
+          Alterar
+        </button>
+
+        <button onclick="excluirConta('${docSnap.id}')">
+          Excluir
+        </button>
+      </li>
     `;
-
-    lista.appendChild(div);
   });
-}
 
-window.marcarPaga = async function (id) {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  await updateDoc(
-    doc(db, "users", user.uid, "contas", id),
-    { paga: true }
-  );
-
-  await listarContas(user.uid);
+  qtdPagar.innerText = pagar;
+  qtdPago.innerText = pago;
+  qtdVencido.innerText = vencido;
 };
+
+window.marcarFeito = async (id, recorrente) => {
+  const ref = doc(db, "contas", id);
+  await updateDoc(ref, { status: "feito" });
+
+  carregarContas();
+};
+
+window.editarConta = async (id, desc, data, rec) => {
+  const novaDesc = prompt("Descrição:", desc);
+  const novaData = prompt("Data de vencimento (AAAA-MM-DD):", data);
+
+  if (!novaDesc || !novaData) return;
+
+  await updateDoc(doc(db, "contas", id), {
+    descricao: novaDesc,
+    dataVencimento: novaData,
+    recorrente: rec
+  });
+
+  carregarContas();
+};
+
+window.excluirConta = async (id) => {
+  if (confirm("Deseja excluir esta conta?")) {
+    await deleteDoc(doc(db, "contas", id));
+    carregarContas();
+  }
+};
+
+auth.onAuthStateChanged(user => {
+  if (user) carregarContas();
+});
