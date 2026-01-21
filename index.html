@@ -1,65 +1,44 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Controle de Contas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- 🔐 LOGIN -->
   <section id="loginArea">
     <h2>Controle de Contas</h2>
     <button id="btnLogin">Entrar com Google</button>
     <button id="btnLogout" style="display:none">Sair</button>
   </section>
 
-  <!-- 📊 DASHBOARD -->
   <section id="dashboard" style="display:none">
     <h3>Dashboard</h3>
-    <p>Total de contas: <span id="totalContas">0</span></p>
-    <p>Pagas: <span id="contasPagas">0</span></p>
-    <p>Pendentes: <span id="contasPendentes">0</span></p>
-    <p>Vencidas: <span id="contasVencidas">0</span></p>
+    <p>Total: <span id="total">0</span></p>
+    <p>Feitas: <span id="feitas">0</span></p>
+    <p>Pendentes: <span id="pendentes">0</span></p>
+    <p>Vencidas: <span id="vencidas">0</span></p>
   </section>
 
-  <!-- ➕ CADASTRO -->
   <section id="cadastro" style="display:none">
     <h3>Cadastrar Conta</h3>
-
     <form id="formConta">
-      <input
-        type="text"
-        id="descricao"
-        placeholder="Descrição da conta"
-        required
-      />
-
-      <input
-        type="date"
-        id="vencimento"
-        required
-      />
-
+      <input id="descricao" placeholder="Descrição" required>
+      <input type="date" id="vencimento" required>
       <label>
-        <input type="checkbox" id="recorrente" />
-        Recorrência mensal
+        <input type="checkbox" id="recorrente"> Recorrente mensal
       </label>
-
       <button type="submit">Salvar</button>
     </form>
   </section>
 
-  <!-- 📋 LISTA -->
   <section id="lista" style="display:none">
     <h3>Minhas Contas</h3>
     <ul id="listaContas"></ul>
   </section>
 
-  <!-- Firebase -->
   <script type="module" src="firebase.js"></script>
   <script type="module" src="auth.js"></script>
   <script type="module" src="contas.js"></script>
