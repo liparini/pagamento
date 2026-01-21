@@ -2,113 +2,67 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard Financeiro</title>
-
+  <title>Controle de Contas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Estilo simples (pode trocar depois) -->
-  <style>
-    body {
-      background: #0f1220;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 { margin-bottom: 10px; }
-    section {
-      background: #1c1f36;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-    }
-    input, select, button {
-      padding: 6px;
-      margin: 4px;
-      border-radius: 4px;
-      border: none;
-    }
-    button {
-      cursor: pointer;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      background: #2a2e52;
-      padding: 10px;
-      margin-bottom: 6px;
-      border-radius: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .acoes button {
-      margin-left: 5px;
-    }
-  </style>
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
-  <!-- ================= DASHBOARD ================= -->
-  <h1>📊 Dashboard Financeiro</h1>
-
-  <section>
-    A pagar: <strong><span id="qtdAbertas">0</span></strong> |
-    Feitas: <strong><span id="qtdFeitas">0</span></strong> |
-    Vencidas: <strong><span id="qtdVencidas">0</span></strong>
-    <button onclick="logout()" style="float:right">Sair</button>
+  <!-- 🔐 LOGIN -->
+  <section id="loginArea">
+    <h2>Controle de Contas</h2>
+    <button id="btnLogin">Entrar com Google</button>
+    <button id="btnLogout" style="display:none">Sair</button>
   </section>
 
-  <!-- ================= NOVA CONTA ================= -->
-  <section>
-    <h3>➕ Nova Conta</h3>
-
-    <input
-      type="text"
-      id="descricao"
-      placeholder="Descrição da conta"
-    />
-
-    <input
-      type="date"
-      id="vencimento"
-    />
-
-    <label>
-      <input type="checkbox" id="recorrente" />
-      Recorrente mensal
-    </label>
-
-    <button id="salvarConta">Salvar</button>
+  <!-- 📊 DASHBOARD -->
+  <section id="dashboard" style="display:none">
+    <h3>Dashboard</h3>
+    <p>Total de contas: <span id="totalContas">0</span></p>
+    <p>Pagas: <span id="contasPagas">0</span></p>
+    <p>Pendentes: <span id="contasPendentes">0</span></p>
+    <p>Vencidas: <span id="contasVencidas">0</span></p>
   </section>
 
-  <!-- ================= FILTROS ================= -->
-  <section>
-    <h3>🔎 Filtros</h3>
+  <!-- ➕ CADASTRO -->
+  <section id="cadastro" style="display:none">
+    <h3>Cadastrar Conta</h3>
 
-    <input type="month" id="filtroMes" />
+    <form id="formConta">
+      <input
+        type="text"
+        id="descricao"
+        placeholder="Descrição da conta"
+        required
+      />
 
-    <select id="filtroStatus">
-      <option value="todos">Todos</option>
-      <option value="aberta">A pagar</option>
-      <option value="feita">Pagas</option>
-    </select>
+      <input
+        type="date"
+        id="vencimento"
+        required
+      />
 
-    <button id="btnFiltrar">Filtrar</button>
+      <label>
+        <input type="checkbox" id="recorrente" />
+        Recorrência mensal
+      </label>
+
+      <button type="submit">Salvar</button>
+    </form>
   </section>
 
-  <!-- ================= LISTA ================= -->
-  <section>
-    <h3>📋 Contas</h3>
+  <!-- 📋 LISTA -->
+  <section id="lista" style="display:none">
+    <h3>Minhas Contas</h3>
     <ul id="listaContas"></ul>
   </section>
 
-  <!-- ================= SCRIPTS ================= -->
-  <script type="module" src="./firebase.js"></script>
-  <script type="module" src="./contas.js"></script>
+  <!-- Firebase -->
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="auth.js"></script>
+  <script type="module" src="contas.js"></script>
 
 </body>
 </html>
