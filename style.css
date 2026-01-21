@@ -1,6 +1,11 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #121212;
+  color: #eee;
   padding: 20px;
 }
 
@@ -8,49 +13,79 @@ h1, h2 {
   text-align: center;
 }
 
-.filtros {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-button {
-  padding: 6px 10px;
-  margin: 4px;
-  cursor: pointer;
-}
-
-.form {
-  max-width: 400px;
-  margin: auto;
-}
-
-input, select {
-  width: 100%;
-  margin: 6px 0;
-  padding: 6px;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-  max-width: 600px;
-  margin: auto;
-}
-
-li {
-  background: white;
-  padding: 10px;
-  margin-bottom: 6px;
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+button {
+  background: #1e88e5;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1565c0;
+}
+
+.form {
+  max-width: 400px;
+  margin: 15px auto;
+}
+
+input, select {
+  width: 100%;
+  padding: 8px;
+  margin: 6px 0;
+  border-radius: 5px;
+  border: none;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  max-width: 700px;
+  margin: auto;
+}
+
+li {
+  background: #1f1f1f;
+  padding: 12px;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 6px;
+}
+
+li span {
+  font-size: 14px;
+}
+
 .pago {
   text-decoration: line-through;
-  color: green;
+  color: #4caf50;
 }
 
 .vencido {
-  color: red;
+  color: #f44336;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.card {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 16px;
 }
