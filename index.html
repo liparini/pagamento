@@ -2,52 +2,46 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Controle de Contas a Pagar</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="./style.css">
+  <title>Dashboard Financeiro</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- LOGIN -->
-  <div id="login">
-    <h1>Controle Financeiro</h1>
-    <p>Faça login para acessar suas contas</p>
+<h1>📊 Dashboard Financeiro</h1>
 
-    <button id="btnGoogle" onclick="loginGoogle()">
-      🔐 Entrar com Google
-    </button>
+<div class="dashboard">
+  <div class="card pagar">
+    A pagar
+    <span id="qtdPagar">0</span>
   </div>
 
-  <!-- APLICAÇÃO -->
-  <div id="app" style="display:none">
-
-    <header>
-      <h2>Minhas Contas</h2>
-      <button onclick="logout()">Sair</button>
-    </header>
-
-    <main>
-
-      <!-- DASHBOARD -->
-      <section id="dashboard">
-        <p>Bem-vindo! Cadastre suas contas abaixo.</p>
-      </section>
-
-      <!-- CONTAS -->
-      <section>
-        <div id="contas"></div>
-      </section>
-
-    </main>
-
+  <div class="card pago">
+    Pagas
+    <span id="qtdPago">0</span>
   </div>
 
-  <!-- SCRIPTS (ORDEM IMPORTA) -->
-  <script type="module" src="./firebase.js"></script>
-  <script type="module" src="./auth.js"></script>
-  <script type="module" src="./contas.js"></script>
+  <div class="card vencido">
+    Vencidas
+    <span id="qtdVencido">0</span>
+  </div>
+</div>
 
+<hr>
+
+<h2>➕ Nova Conta</h2>
+<input id="descricao" placeholder="Descrição da conta">
+<input id="data" type="date">
+<label>
+  <input type="checkbox" id="recorrente"> Recorrente mensal
+</label>
+<button onclick="salvarConta()">Salvar</button>
+
+<hr>
+
+<h2>📋 Contas</h2>
+<ul id="listaContas"></ul>
+
+<script type="module" src="firebase.js"></script>
+<script type="module" src="contas.js"></script>
 </body>
 </html>
