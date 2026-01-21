@@ -1,91 +1,170 @@
+/* RESET BÁSICO */
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: #121212;
-  color: #eee;
-  padding: 20px;
+  background: linear-gradient(135deg, #1e1e2f, #2b2b45);
+  min-height: 100vh;
+  color: #fff;
 }
 
-h1, h2 {
+/* =======================
+   LOGIN
+======================= */
+
+#login {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
 }
 
+#login h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+#login p {
+  opacity: 0.8;
+  margin-bottom: 30px;
+}
+
+/* BOTÃO GOOGLE */
+#btnGoogle {
+  background: #fff;
+  color: #333;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#btnGoogle:hover {
+  background: #f1f1f1;
+  transform: scale(1.05);
+}
+
+/* =======================
+   APLICAÇÃO
+======================= */
+
+#app {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* HEADER */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 30px;
 }
 
-button {
-  background: #1e88e5;
+header h2 {
+  font-size: 1.8rem;
+}
+
+header button {
+  background: #ff5c5c;
+  border: none;
   color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 5px;
+  padding: 10px 18px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: 0.3s;
 }
 
-button:hover {
-  background: #1565c0;
+header button:hover {
+  background: #ff3b3b;
 }
 
-.form {
-  max-width: 400px;
-  margin: 15px auto;
+/* =======================
+   DASHBOARD
+======================= */
+
+#dashboard {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
 }
 
-input, select {
-  width: 100%;
-  padding: 8px;
-  margin: 6px 0;
-  border-radius: 5px;
-  border: none;
+#dashboard p {
+  font-size: 1.2rem;
 }
 
-ul {
-  list-style: none;
-  padding: 0;
-  max-width: 700px;
-  margin: auto;
+/* =======================
+   CONTAS
+======================= */
+
+#contas {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 20px;
+  border-radius: 10px;
 }
 
-li {
-  background: #1f1f1f;
-  padding: 12px;
-  margin-bottom: 6px;
+/* ITEM DE CONTA */
+.conta {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 6px;
 }
 
-li span {
-  font-size: 14px;
+.conta span {
+  font-size: 1rem;
 }
 
-.pago {
-  text-decoration: line-through;
-  color: #4caf50;
+.conta.vencida {
+  border-left: 5px solid #ff5c5c;
 }
 
-.vencido {
-  color: #f44336;
+.conta.paga {
+  border-left: 5px solid #4caf50;
+  opacity: 0.6;
 }
 
-.dashboard {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin: 15px 0;
+/* BOTÕES DE AÇÃO */
+.conta button {
+  background: #4caf50;
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.card {
-  background: #1e1e1e;
-  padding: 15px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 16px;
+.conta button:hover {
+  background: #43a047;
+}
+
+/* =======================
+   RESPONSIVO
+======================= */
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .conta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
