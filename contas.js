@@ -1,32 +1,33 @@
-import { db, auth } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 import {
   collection, addDoc, getDocs, query, where,
-  updateDoc, doc, deleteDoc
+  updateDoc, doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const btnSalvar = document.getElementById("btnSalvar");
 const lista = document.getElementById("listaContas");
+const btnSalvar = document.getElementById("btnSalvar");
 
-btnSalvar.addEventListener("click", salvarConta);
+btnSalvar.onclick = salvarConta;
+
+onAuthStateChanged(auth, user => {
+  if (user) carregarContas();
+});
 
 async function salvarConta() {
   const user = auth.currentUser;
-  if (!user) {
-    alert("Usuário não autenticado");
-    return;
-  }
+  if (!user) return;
 
   await addDoc(collection(db, "contas"), {
     descricao: descricao.value,
-    dataVencimento: data.value,
+    vencimento: vencimento.value,
     recorrente: recorrente.checked,
     status: "pendente",
-    usuarioId: user.uid,
-    criadoEm: new Date()
+    uid: user.uid
   });
 
   descricao.value = "";
-  data.value = "";
+  vencimento.value = "";
   recorrente.checked = false;
 
   carregarContas();
@@ -34,52 +35,36 @@ async function salvarConta() {
 
 async function carregarContas() {
   lista.innerHTML = "";
+  let pagar=0, feitas=0, vencidas=0;
 
-  let pagar = 0, pago = 0, vencido = 0;
   const hoje = new Date().toISOString().split("T")[0];
-
-  const q = query(
-    collection(db, "contas"),
-    where("usuarioId", "==", auth.currentUser.uid)
-  );
-
+  const q = query(collection(db, "contas"), where("uid","==",auth.currentUser.uid));
   const snap = await getDocs(q);
 
-  snap.forEach(docSnap => {
-    const c = docSnap.data();
+  snap.forEach(d => {
+    let c = d.data();
     let status = c.status;
 
-    if (status === "pendente" && c.dataVencimento < hoje) {
-      status = "vencido";
-      updateDoc(doc(db, "contas", docSnap.id), { status: "vencido" });
-    }
+    if (status==="pendente" && c.vencimento < hoje) status="vencida";
 
-    if (status === "pendente") pagar++;
-    if (status === "feito") pago++;
-    if (status === "vencido") vencido++;
+    if (status==="pendente") pagar++;
+    if (status==="feito") feitas++;
+    if (status==="vencida") vencidas++;
 
     lista.innerHTML += `
       <li>
-        ${c.descricao} | ${c.dataVencimento} | ${status}
-        ${status === "pendente" ? `<button data-id="${docSnap.id}" class="feito">Feito</button>` : ""}
+        ${c.descricao} | ${c.vencimento} | ${status}
+        ${status==="pendente" ? `<button onclick="marcarFeito('${d.id}')">Feito</button>` : ""}
       </li>
     `;
   });
 
-  qtdPagar.innerText = pagar;
-  qtdPago.innerText = pago;
-  qtdVencido.innerText = vencido;
-
-  document.querySelectorAll(".feito").forEach(btn => {
-    btn.onclick = () => marcarFeito(btn.dataset.id);
-  });
+  qtdPagar.innerText=pagar;
+  qtdFeitas.innerText=feitas;
+  qtdVencidas.innerText=vencidas;
 }
 
-async function marcarFeito(id) {
-  await updateDoc(doc(db, "contas", id), { status: "feito" });
+window.marcarFeito = async id => {
+  await updateDoc(doc(db,"contas",id),{status:"feito"});
   carregarContas();
-}
-
-auth.onAuthStateChanged(user => {
-  if (user) carregarContas();
-});
+};
