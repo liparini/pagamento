@@ -1,27 +1,21 @@
-* {
-  box-sizing: border-box;
-}
-
 body {
   font-family: "Segoe UI", Arial, sans-serif;
-  background: #f4f6f8;
+  background: #f1f3f6;
   margin: 0;
   padding: 0;
-  color: #333;
 }
 
 section {
-  background: #ffffff;
-  margin: 20px auto;
+  background: white;
+  max-width: 900px;
+  margin: 15px auto;
   padding: 20px;
-  max-width: 700px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,.08);
 }
 
 h2, h3 {
   margin-top: 0;
-  color: #2c3e50;
 }
 
 /* LOGIN */
@@ -29,27 +23,37 @@ h2, h3 {
   text-align: center;
 }
 
-#btnLogin,
-#btnLogout {
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#btnLogin {
   background: #4285f4;
   color: white;
-  border: none;
-  padding: 12px 20px;
-  font-size: 15px;
-  border-radius: 6px;
-  cursor: pointer;
 }
 
 #btnLogout {
   background: #e74c3c;
+  color: white;
 }
 
-#btnLogin:hover {
-  background: #3367d6;
+/* DASHBOARD */
+#dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
 }
 
-#btnLogout:hover {
-  background: #c0392b;
+#dashboard p {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 600;
 }
 
 /* FORM */
@@ -58,85 +62,54 @@ form {
   gap: 10px;
 }
 
-input[type="text"],
-input[type="date"] {
+input {
   padding: 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #ccc;
-  font-size: 14px;
-}
-
-label {
-  font-size: 14px;
-}
-
-form button {
-  background: #2ecc71;
-  border: none;
-  padding: 12px;
-  font-size: 15px;
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
-}
-
-form button:hover {
-  background: #27ae60;
-}
-
-/* DASHBOARD */
-#dashboard p {
-  margin: 6px 0;
-  font-weight: 500;
-}
-
-#dashboard span {
-  font-weight: bold;
 }
 
 /* LISTA */
 ul {
   list-style: none;
   padding: 0;
-  margin: 0;
 }
 
 li {
-  background: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 12px;
+  background: #f9fafb;
+  border-radius: 10px;
   margin-bottom: 10px;
+  padding: 12px;
 }
 
-li b {
-  font-size: 16px;
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.status.pendente {
+  background: #f1c40f;
+}
+
+.status.feito {
+  background: #2ecc71;
+  color: white;
+}
+
+.status.vencida {
+  background: #e74c3c;
+  color: white;
 }
 
 li button {
-  margin-top: 8px;
   background: #3498db;
-  border: none;
-  padding: 8px 12px;
   color: white;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-li button:hover {
-  background: #2980b9;
-}
-
-/* STATUS VISUAL */
-li[data-status="feito"] {
-  opacity: 0.6;
-  text-decoration: line-through;
-}
-
-/* RESPONSIVO */
-@media (max-width: 600px) {
-  section {
-    margin: 10px;
-    padding: 15px;
-  }
+  margin-left: 10px;
 }
