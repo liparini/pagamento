@@ -1,120 +1,121 @@
-import { db, auth } from "./firebase.js";
-
+import { auth, db } from "./firebase.js";
 import {
   collection,
   addDoc,
   getDocs,
   updateDoc,
   doc,
-  query,
-  where
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-const lista = document.getElementById("lista");
+const contasDiv = document.getElementById("contas");
 
-onAuthStateChanged(auth, user => {
-  if (user) {
-    carregarContas(user.uid);
-  } else {
-    lista.innerHTML = "";
-  }
+// CARREGA A TELA QUANDO LOGAR
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  renderForm();
+  await listarContas(user.uid);
 });
 
-async function carregarContas(uid) {
-  lista.innerHTML = "";
+// FORMULÁRIO
+function renderForm() {
+  contasDiv.innerHTML = `
+    <h3>➕ Nova Conta</h3>
 
-  const q = query(
-    collection(db, "contas"),
-    where("uid", "==", uid)
-  );
+    <input id="descricao" placeholder="Descrição da conta">
+    <input id="valor" type="number" placeholder="Valor">
+    <input id="vencimento" type="date">
 
-  const snapshot = await getDocs(q);
-  const hoje = new Date();
+    <button id="btnSalvar">Salvar</button>
 
-  snapshot.forEach(docSnap => {
-    const conta = docSnap.data();
-    const id = docSnap.id;
-    const venc = new Date(conta.dataVencimento);
+    <hr>
+    <h3>📋 Contas Cadastradas</h3>
+    <div id="listaContas"></div>
+  `;
 
-    const li = document.createElement("li");
-
-    if (conta.status === "pago") li.classList.add("pago");
-    if (conta.status === "pendente" && venc < hoje)
-      li.classList.add("vencido");
-
-    li.innerHTML = `
-      <span>
-        ${conta.descricao} - R$ ${conta.valor} - ${conta.dataVencimento}
-        ${conta.recorrente ? "🔄" : ""}
-      </span>
-      ${
-        conta.status === "pendente"
-          ? `<button onclick="pagar('${id}')">✔</button>`
-          : ""
-      }
-    `;
-
-    lista.appendChild(li);
-  });
+  document.getElementById("btnSalvar").onclick = salvarConta;
 }
 
-window.adicionarConta = async function () {
+// SALVAR
+async function salvarConta() {
   const user = auth.currentUser;
   if (!user) return;
 
-  await addDoc(collection(db, "contas"), {
-    uid: user.uid,
-    descricao: descricao.value,
-    valor: Number(valor.value),
-    dataVencimento: data.value,
-    recorrente: recorrencia.value !== "nao",
-    tipoRecorrencia: recorrencia.value,
-    status: "pendente",
-    criadoEm: new Date().toISOString()
-  });
+  const descricao = document.getElementById("descricao").value;
+  const valor = Number(document.getElementById("valor").value);
+  const vencimento = document.getElementById("vencimento").value;
 
-  carregarContas(user.uid);
-};
-
-window.pagar = async function (id) {
-  const ref = doc(db, "contas", id);
-  const snapshot = await getDocs(collection(db, "contas"));
-
-  let contaAtual;
-  snapshot.forEach(d => {
-    if (d.id === id) contaAtual = d.data();
-  });
-
-  await updateDoc(ref, {
-    status: "pago",
-    dataPagamento: new Date().toISOString()
-  });
-
-  if (contaAtual.recorrente) {
-    await gerarProximaConta(contaAtual);
+  if (!descricao || !valor || !vencimento) {
+    alert("Preencha todos os campos");
+    return;
   }
 
-  carregarContas(contaAtual.uid);
-};
+  try {
+    await addDoc(
+      collection(db, "users", user.uid, "contas"),
+      {
+        descricao,
+        valor,
+        vencimento,
+        paga: false,
+        criadoEm: serverTimestamp()
+      }
+    );
 
-async function gerarProximaConta(conta) {
-  const novaData = new Date(conta.dataVencimento);
+    document.getElementById("descricao").value = "";
+    document.getElementById("valor").value = "";
+    document.getElementById("vencimento").value = "";
 
-  if (conta.tipoRecorrencia === "mensal")
-    novaData.setMonth(novaData.getMonth() + 1);
+    await listarContas(user.uid);
+  } catch (e) {
+    console.error("Erro ao salvar:", e);
+    alert("Erro ao salvar conta");
+  }
+}
 
-  if (conta.tipoRecorrencia === "semanal")
-    novaData.setDate(novaData.getDate() + 7);
+// LISTAR
+async function listarContas(uid) {
+  const listaDiv = document.getElementById("listaContas");
+  listaDiv.innerHTML = "";
 
-  if (conta.tipoRecorrencia === "anual")
-    novaData.setFullYear(novaData.getFullYear() + 1);
+  const snapshot = await getDocs(
+    collection(db, "users", uid, "contas")
+  );
 
-  await addDoc(collection(db, "contas"), {
-    ...conta,
-    dataVencimento: novaData.toISOString().split("T")[0],
-    status: "pendente",
-    criadoEm: new Date().toISOString()
+  snapshot.forEach((docSnap) => {
+    const conta = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = `conta ${conta.paga ? "paga" : ""}`;
+
+    div.innerHTML = `
+      <span>
+        ${conta.descricao} - R$ ${conta.valor.toFixed(2)}
+        <br>
+        Vencimento: ${conta.vencimento}
+      </span>
+      ${
+        conta.paga
+          ? ""
+          : `<button onclick="marcarPaga('${docSnap.id}')">Pagar</button>`
+      }
+    `;
+
+    listaDiv.appendChild(div);
   });
 }
+
+// MARCAR COMO PAGA
+window.marcarPaga = async function (id) {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  await updateDoc(
+    doc(db, "users", user.uid, "contas", id),
+    { paga: true }
+  );
+
+  await listarContas(user.uid);
+};
