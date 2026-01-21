@@ -2,8 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Controle Financeiro</title>
-
+  <title>Controle de Contas a Pagar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- CSS -->
@@ -14,7 +13,7 @@
   <!-- LOGIN -->
   <div id="login">
     <h1>Controle Financeiro</h1>
-    <p>Faça login para continuar</p>
+    <p>Faça login para acessar suas contas</p>
 
     <button id="btnGoogle" onclick="loginGoogle()">
       🔐 Entrar com Google
@@ -25,33 +24,30 @@
   <div id="app" style="display:none">
 
     <header>
-      <h2>Meu Financeiro</h2>
+      <h2>Minhas Contas</h2>
       <button onclick="logout()">Sair</button>
     </header>
 
     <main>
-      <section>
-        <h3>Dashboard</h3>
-        <div id="dashboard">
-          <p>Bem-vindo!</p>
-        </div>
+
+      <!-- DASHBOARD (FUTURO) -->
+      <section id="dashboard">
+        <p>Bem-vindo! Cadastre suas contas abaixo.</p>
       </section>
 
+      <!-- CONTAS -->
       <section>
-        <h3>Contas</h3>
-        <div id="contas">
-          <!-- conteúdo do contas.js -->
-        </div>
+        <div id="contas"></div>
       </section>
+
     </main>
 
   </div>
 
-  <!-- SCRIPTS (ORDEM IMPORTA) -->
+  <!-- SCRIPTS -->
   <script type="module" src="firebase.js"></script>
   <script type="module" src="auth.js"></script>
   <script type="module" src="contas.js"></script>
-  <script type="module" src="dashboard.js"></script>
 
 </body>
 </html>
