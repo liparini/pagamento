@@ -2,193 +2,157 @@ import { auth, db } from "./firebase.js";
 import {
   collection,
   addDoc,
-  getDocs,
+  onSnapshot,
   query,
   where,
   updateDoc,
-  doc,
-  serverTimestamp
+  doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* =====================
-   ELEMENTOS DA TELA
-===================== */
-const descricaoInput = document.getElementById("descricao");
-const vencimentoInput = document.getElementById("vencimento");
-const recorrenteInput = document.getElementById("recorrente");
+let usuarioAtual = null;
+let todasContas = [];
 
-const btnSalvar = document.getElementById("btnSalvar");
-const btnFiltrar = document.getElementById("btnFiltrar");
-
-const filtroMes = document.getElementById("filtroMes");
-const filtroStatus = document.getElementById("filtroStatus");
-
-const listaContas = document.getElementById("listaContas");
-
-const qtdPagar = document.getElementById("qtdPagar");
-const qtdFeitas = document.getElementById("qtdFeitas");
-const qtdVencidas = document.getElementById("qtdVencidas");
-
-/* =====================
-   EVENTOS
-===================== */
-btnSalvar.addEventListener("click", salvarConta);
-btnFiltrar.addEventListener("click", carregarContas);
-
-/* =====================
-   AUTENTICAÇÃO
-===================== */
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    carregarContas();
+// ================== AUTENTICAÇÃO ==================
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
   }
+  usuarioAtual = user;
+  carregarContas();
 });
 
-/* =====================
-   SALVAR CONTA
-===================== */
-async function salvarConta() {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  const descricao = descricaoInput.value.trim();
-  const vencimento = vencimentoInput.value;
-  const recorrente = recorrenteInput.checked;
+// ================== CADASTRAR CONTA ==================
+document.getElementById("salvarConta").addEventListener("click", async () => {
+  const descricao = document.getElementById("descricao").value;
+  const vencimento = document.getElementById("vencimento").value;
+  const recorrente = document.getElementById("recorrente").checked;
 
   if (!descricao || !vencimento) {
-    alert("Preencha descrição e vencimento");
+    alert("Preencha todos os campos");
     return;
   }
 
   await addDoc(collection(db, "contas"), {
+    uid: usuarioAtual.uid,
     descricao,
-    vencimento,           // YYYY-MM-DD
+    vencimento,
     recorrente,
-    status: "pendente",
-    uid: user.uid,
-    criadoEm: serverTimestamp()
+    status: "aberta",
+    criadoEm: new Date()
   });
 
-  descricaoInput.value = "";
-  vencimentoInput.value = "";
-  recorrenteInput.checked = false;
+  document.getElementById("descricao").value = "";
+  document.getElementById("vencimento").value = "";
+  document.getElementById("recorrente").checked = false;
+});
 
-  carregarContas();
-}
-
-/* =====================
-   CARREGAR CONTAS
-===================== */
-async function carregarContas() {
-  listaContas.innerHTML = "";
-
-  let pagar = 0;
-  let feitas = 0;
-  let vencidas = 0;
-
-  const hoje = new Date().toISOString().split("T")[0];
-
+// ================== CARREGAR CONTAS ==================
+function carregarContas() {
   const q = query(
     collection(db, "contas"),
-    where("uid", "==", auth.currentUser.uid)
+    where("uid", "==", usuarioAtual.uid)
   );
 
-  const snapshot = await getDocs(q);
-
-  snapshot.forEach((docSnap) => {
-    const conta = docSnap.data();
-    let status = conta.status;
-
-    /* 🔴 Atualiza vencidas automaticamente */
-    if (status === "pendente" && conta.vencimento < hoje) {
-      status = "vencida";
-      updateDoc(doc(db, "contas", docSnap.id), { status });
-    }
-
-    /* 🔍 FILTRO DE MÊS */
-    if (filtroMes.value) {
-      if (!conta.vencimento.startsWith(filtroMes.value)) return;
-    }
-
-    /* 🔍 FILTRO DE STATUS */
-    if (filtroStatus.value && filtroStatus.value !== status) return;
-
-    /* CONTADORES */
-    if (status === "pendente") pagar++;
-    if (status === "feito") feitas++;
-    if (status === "vencida") vencidas++;
-
-    /* LISTA */
-    const li = document.createElement("li");
-    li.className = status;
-
-    li.innerHTML = `
-      <input 
-        value="${conta.descricao}"
-        onchange="editarConta('${docSnap.id}', this.value)"
-      >
-      <span> | ${conta.vencimento} | ${status}</span>
-      ${
-        status === "pendente"
-          ? `<button onclick="marcarFeito('${docSnap.id}', ${conta.recorrente})">Feito</button>`
-          : ""
-      }
-    `;
-
-    listaContas.appendChild(li);
+  onSnapshot(q, snapshot => {
+    todasContas = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    aplicarFiltros();
   });
-
-  qtdPagar.innerText = pagar;
-  qtdFeitas.innerText = feitas;
-  qtdVencidas.innerText = vencidas;
 }
 
-/* =====================
-   EDITAR CONTA
-===================== */
-window.editarConta = async function (id, novaDescricao) {
-  await updateDoc(doc(db, "contas", id), {
-    descricao: novaDescricao
-  });
-};
+// ================== FILTROS ==================
+document.getElementById("btnFiltrar").addEventListener("click", aplicarFiltros);
 
-/* =====================
-   MARCAR COMO FEITO
-===================== */
-window.marcarFeito = async function (id, recorrente) {
-  await updateDoc(doc(db, "contas", id), {
-    status: "feito"
-  });
+function aplicarFiltros() {
+  const mes = document.getElementById("filtroMes").value;
+  const status = document.getElementById("filtroStatus").value;
 
-  if (recorrente) {
-    await criarProximaConta(id);
+  let filtradas = [...todasContas];
+
+  if (mes) {
+    filtradas = filtradas.filter(c =>
+      c.vencimento.startsWith(mes)
+    );
   }
 
-  carregarContas();
-};
+  if (status !== "todos") {
+    filtradas = filtradas.filter(c => c.status === status);
+  }
 
-/* =====================
-   RECORRÊNCIA AUTOMÁTICA
-===================== */
-async function criarProximaConta(idConta) {
-  const ref = doc(db, "contas", idConta);
-  const snap = await getDocs(query(collection(db, "contas")));
+  renderizarLista(filtradas);
+  atualizarDashboard();
+}
 
-  // ⚠️ Lógica simples e segura:
-  // cria nova conta no mês seguinte com mesmo nome
+// ================== RENDERIZAR LISTA ==================
+function renderizarLista(lista) {
+  const ul = document.getElementById("listaContas");
+  ul.innerHTML = "";
 
-  const hoje = new Date();
-  hoje.setMonth(hoje.getMonth() + 1);
+  if (lista.length === 0) {
+    ul.innerHTML = "<li>Nenhuma conta encontrada</li>";
+    return;
+  }
 
-  const novaData = hoje.toISOString().split("T")[0];
+  lista.forEach(conta => {
+    const li = document.createElement("li");
 
-  await addDoc(collection(db, "contas"), {
-    descricao: "Recorrente",
-    vencimento: novaData,
-    recorrente: true,
-    status: "pendente",
-    uid: auth.currentUser.uid,
-    criadoEm: serverTimestamp()
+    li.innerHTML = `
+      <strong>${conta.descricao}</strong> - 
+      ${conta.vencimento}
+      <button onclick="marcarFeito('${conta.id}')">Feito</button>
+      <button onclick="editarConta('${conta.id}')">Editar</button>
+    `;
+
+    ul.appendChild(li);
   });
 }
+
+// ================== DASHBOARD ==================
+function atualizarDashboard() {
+  const hoje = new Date().toISOString().slice(0, 10);
+
+  const abertas = todasContas.filter(c => c.status === "aberta");
+  const feitas = todasContas.filter(c => c.status === "feita");
+  const vencidas = abertas.filter(c => c.vencimento < hoje);
+
+  document.getElementById("qtdAbertas").innerText = abertas.length;
+  document.getElementById("qtdFeitas").innerText = feitas.length;
+  document.getElementById("qtdVencidas").innerText = vencidas.length;
+}
+
+// ================== MARCAR COMO FEITO ==================
+window.marcarFeito = async id => {
+  const conta = todasContas.find(c => c.id === id);
+  if (!conta) return;
+
+  await updateDoc(doc(db, "contas", id), {
+    status: "feita"
+  });
+
+  // Recorrência mensal
+  if (conta.recorrente) {
+    const novaData = new Date(conta.vencimento);
+    novaData.setMonth(novaData.getMonth() + 1);
+
+    await addDoc(collection(db, "contas"), {
+      uid: usuarioAtual.uid,
+      descricao: conta.descricao,
+      vencimento: novaData.toISOString().slice(0, 10),
+      recorrente: true,
+      status: "aberta",
+      criadoEm: new Date()
+    });
+  }
+};
+
+// ================== EDITAR (BÁSICO) ==================
+window.editarConta = id => {
+  const conta = todasContas.find(c => c.id === id);
+  if (!conta) return;
+
+  document.getElementById("descricao").value = conta.descricao;
+  document.getElementById("vencimento").value = conta.vencimento;
+};
