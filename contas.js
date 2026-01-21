@@ -4,11 +4,17 @@ import {
   updateDoc, doc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+const btnSalvar = document.getElementById("btnSalvar");
 const lista = document.getElementById("listaContas");
 
-window.salvarConta = async () => {
+btnSalvar.addEventListener("click", salvarConta);
+
+async function salvarConta() {
   const user = auth.currentUser;
-  if (!user) return alert("Usuário não autenticado");
+  if (!user) {
+    alert("Usuário não autenticado");
+    return;
+  }
 
   await addDoc(collection(db, "contas"), {
     descricao: descricao.value,
@@ -24,9 +30,9 @@ window.salvarConta = async () => {
   recorrente.checked = false;
 
   carregarContas();
-};
+}
 
-window.carregarContas = async () => {
+async function carregarContas() {
   lista.innerHTML = "";
 
   let pagar = 0, pago = 0, vencido = 0;
@@ -41,35 +47,21 @@ window.carregarContas = async () => {
 
   snap.forEach(docSnap => {
     const c = docSnap.data();
-    let statusAtual = c.status;
+    let status = c.status;
 
-    // Atualiza vencidas automaticamente
-    if (statusAtual === "pendente" && c.dataVencimento < hoje) {
-      statusAtual = "vencido";
+    if (status === "pendente" && c.dataVencimento < hoje) {
+      status = "vencido";
       updateDoc(doc(db, "contas", docSnap.id), { status: "vencido" });
     }
 
-    if (statusAtual === "pendente") pagar++;
-    if (statusAtual === "feito") pago++;
-    if (statusAtual === "vencido") vencido++;
+    if (status === "pendente") pagar++;
+    if (status === "feito") pago++;
+    if (status === "vencido") vencido++;
 
     lista.innerHTML += `
       <li>
-        <strong>${c.descricao}</strong> | ${c.dataVencimento} | ${statusAtual}
-
-        ${statusAtual === "pendente" ? `
-          <button onclick="marcarFeito('${docSnap.id}', ${c.recorrente})">
-            Feito
-          </button>
-        ` : ""}
-
-        <button onclick="editarConta('${docSnap.id}', '${c.descricao}', '${c.dataVencimento}', ${c.recorrente})">
-          Alterar
-        </button>
-
-        <button onclick="excluirConta('${docSnap.id}')">
-          Excluir
-        </button>
+        ${c.descricao} | ${c.dataVencimento} | ${status}
+        ${status === "pendente" ? `<button data-id="${docSnap.id}" class="feito">Feito</button>` : ""}
       </li>
     `;
   });
@@ -77,36 +69,16 @@ window.carregarContas = async () => {
   qtdPagar.innerText = pagar;
   qtdPago.innerText = pago;
   qtdVencido.innerText = vencido;
-};
 
-window.marcarFeito = async (id, recorrente) => {
-  const ref = doc(db, "contas", id);
-  await updateDoc(ref, { status: "feito" });
-
-  carregarContas();
-};
-
-window.editarConta = async (id, desc, data, rec) => {
-  const novaDesc = prompt("Descrição:", desc);
-  const novaData = prompt("Data de vencimento (AAAA-MM-DD):", data);
-
-  if (!novaDesc || !novaData) return;
-
-  await updateDoc(doc(db, "contas", id), {
-    descricao: novaDesc,
-    dataVencimento: novaData,
-    recorrente: rec
+  document.querySelectorAll(".feito").forEach(btn => {
+    btn.onclick = () => marcarFeito(btn.dataset.id);
   });
+}
 
+async function marcarFeito(id) {
+  await updateDoc(doc(db, "contas", id), { status: "feito" });
   carregarContas();
-};
-
-window.excluirConta = async (id) => {
-  if (confirm("Deseja excluir esta conta?")) {
-    await deleteDoc(doc(db, "contas", id));
-    carregarContas();
-  }
-};
+}
 
 auth.onAuthStateChanged(user => {
   if (user) carregarContas();
