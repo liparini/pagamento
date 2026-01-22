@@ -1,115 +1,71 @@
 body {
   font-family: "Segoe UI", Arial, sans-serif;
-  background: #f1f3f6;
+  background: #eef1f5;
   margin: 0;
-  padding: 0;
 }
 
 section {
-  background: white;
   max-width: 900px;
-  margin: 15px auto;
+  margin: 20px auto;
+  background: white;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,.08);
 }
 
-h2, h3 {
-  margin-top: 0;
+#cadastro {
+  background: #ecf9f1;
+  border-left: 6px solid #2ecc71;
 }
 
-/* LOGIN */
-#loginArea {
-  text-align: center;
+#lista {
+  background: #fdfefe;
 }
 
-button {
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-#btnLogin {
-  background: #4285f4;
-  color: white;
-}
-
-#btnLogout {
-  background: #e74c3c;
-  color: white;
-}
-
-/* DASHBOARD */
-#dashboard {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
-}
-
-#dashboard p {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 10px;
-  text-align: center;
-  font-weight: 600;
-}
-
-/* FORM */
-form {
-  display: grid;
-  gap: 10px;
-}
-
-input {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-/* LISTA */
 ul {
   list-style: none;
   padding: 0;
 }
 
-li {
-  background: #f9fafb;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  padding: 12px;
-}
-
 .item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
-.status {
-  padding: 4px 8px;
+.item.pendente {
+  border-left: 6px solid #f1c40f;
+}
+
+.item.vencida {
+  border-left: 6px solid #e74c3c;
+}
+
+.item.feito {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.acoes button {
+  border: none;
+  margin-left: 6px;
+  cursor: pointer;
+  padding: 6px 8px;
   border-radius: 6px;
-  font-size: 12px;
-  text-transform: uppercase;
 }
 
-.status.pendente {
-  background: #f1c40f;
-}
-
-.status.feito {
+.acoes .ok {
   background: #2ecc71;
   color: white;
 }
 
-.status.vencida {
-  background: #e74c3c;
+.acoes .editar {
+  background: #3498db;
   color: white;
 }
 
-li button {
-  background: #3498db;
+.acoes .excluir {
+  background: #e74c3c;
   color: white;
-  margin-left: 10px;
 }
