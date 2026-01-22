@@ -2,46 +2,87 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Controle de Contas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle Financeiro</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <section id="loginArea">
-    <h2>Controle de Contas</h2>
-    <button id="btnLogin">Entrar com Google</button>
-    <button id="btnLogout" style="display:none">Sair</button>
+<header class="topo">
+  <h1>💰 Controle de Contas</h1>
+  <button id="logoutBtn">Sair</button>
+</header>
+
+<main class="container">
+
+  <!-- DASHBOARD -->
+  <section class="dashboard">
+    <h2>📊 Dashboard Financeiro</h2>
+    <div class="grafico">
+      <canvas id="graficoPizza"></canvas>
+    </div>
+
+    <div class="resumo">
+      <div class="card total">Total: <span id="totalContas">0</span></div>
+      <div class="card pagas">Pagas: <span id="contasPagas">0</span></div>
+      <div class="card vencendo">Vencendo: <span id="contasVencendo">0</span></div>
+      <div class="card vencidas">Vencidas: <span id="contasVencidas">0</span></div>
+    </div>
   </section>
 
-  <section id="dashboard" style="display:none">
-    <h3>Dashboard</h3>
-    <p>Total: <span id="total">0</span></p>
-    <p>Feitas: <span id="feitas">0</span></p>
-    <p>Pendentes: <span id="pendentes">0</span></p>
-    <p>Vencidas: <span id="vencidas">0</span></p>
+  <!-- CONTEÚDO -->
+  <section class="conteudo">
+
+    <!-- CADASTRO -->
+    <aside class="cadastro">
+      <h2>➕ Cadastrar Conta</h2>
+
+      <form id="formConta">
+        <input type="text" id="descricao" placeholder="Descrição da conta" required>
+        <input type="date" id="vencimento" required>
+
+        <label class="checkbox">
+          <input type="checkbox" id="recorrente">
+          Recorrência mensal
+        </label>
+
+        <button type="submit">Salvar Conta</button>
+      </form>
+    </aside>
+
+    <!-- LISTAGEM -->
+    <section class="lista">
+      <h2>📋 Minhas Contas</h2>
+
+      <div class="filtros">
+        <select id="filtroStatus">
+          <option value="todas">Todas</option>
+          <option value="pagas">Pagas</option>
+          <option value="vencendo">Vencendo</option>
+          <option value="vencidas">Vencidas</option>
+        </select>
+      </div>
+
+      <ul id="listaContas">
+        <!-- Contas renderizadas via JS -->
+      </ul>
+    </section>
+
   </section>
 
-  <section id="cadastro" style="display:none">
-    <h3>Cadastrar Conta</h3>
-    <form id="formConta">
-      <input id="descricao" placeholder="Descrição" required>
-      <input type="date" id="vencimento" required>
-      <label>
-        <input type="checkbox" id="recorrente"> Recorrente mensal
-      </label>
-      <button type="submit">Salvar</button>
-    </form>
-  </section>
+</main>
 
-  <section id="lista" style="display:none">
-    <h3>Minhas Contas</h3>
-    <ul id="listaContas"></ul>
-  </section>
-
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="auth.js"></script>
-  <script type="module" src="contas.js"></script>
+<!-- SCRIPTS -->
+<script type="module" src="firebase.js"></script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="contas.js"></script>
+<script type="module" src="dashboard.js"></script>
 
 </body>
 </html>
