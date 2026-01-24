@@ -150,6 +150,9 @@ ul {
   border-radius: 4px;
   font-size: 11px;
   color: #fff;
+  cursor: grab;
+}
+
 }
 .modal {
   position: fixed;
@@ -172,6 +175,7 @@ ul {
 .conta-cal.pendente { background: #2563eb; }
 .conta-cal.vencida { background: #dc2626; }
 .conta-cal.feito { background: #16a34a; }
+
 
 
 
