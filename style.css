@@ -151,10 +151,28 @@ ul {
   font-size: 11px;
   color: #fff;
 }
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hidden { display: none; }
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  width: 300px;
+  border-radius: 10px;
+}
 
 .conta-cal.pendente { background: #2563eb; }
 .conta-cal.vencida { background: #dc2626; }
 .conta-cal.feito { background: #16a34a; }
+
 
 
 
