@@ -69,3 +69,35 @@ ul {
   background: #e74c3c;
   color: white;
 }
+.dashboard {
+  background: #f8fafc;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.cards {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.card {
+  flex: 1;
+  padding: 15px;
+  border-radius: 10px;
+  color: #fff;
+  text-align: center;
+}
+
+.total { background: #0f172a; }
+.pagas { background: #16a34a; }
+.abertas { background: #2563eb; }
+.vencidas { background: #dc2626; }
+
+.grafico-container {
+  max-width: 350px;
+  margin: auto;
+}
+
+
