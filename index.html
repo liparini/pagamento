@@ -65,14 +65,33 @@
 </section>
 
 <!-- CALENDÁRIO -->
-<section class="calendar-container google-calendar">
-  <div class="dias-semana">
-    <div>Dom</div><div>Seg</div><div>Ter</div>
-    <div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+<section class="calendar-container">
+  <div class="calendar-header">
+    <button id="mesAnterior">◀</button>
+    <h2 id="mesAno"></h2>
+    <button id="proximoMes">▶</button>
+
+    <label class="filtro">
+      <input type="checkbox" id="filtroRecorrente" />
+      Recorrentes
+    </label>
   </div>
 
-  <div id="gridCalendario" class="calendar-grid"></div>
+  <div class="calendar-grid" id="gridCalendario"></div>
+
+  <!-- EDIÇÃO INLINE -->
+  <div id="editorInline" class="editor-inline hidden">
+    <input id="editDescricao" />
+    <select id="editStatus">
+      <option value="pendente">Pendente</option>
+      <option value="feito">Pago</option>
+    </select>
+    <button id="salvarEdicao">Salvar</button>
+    <button id="cancelarEdicao">✖</button>
+  </div>
 </section>
+
 
 </body>
 </html>
+
