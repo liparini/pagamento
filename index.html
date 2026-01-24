@@ -6,7 +6,7 @@
 
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Chart.js -->
+  <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Firebase -->
@@ -20,48 +20,40 @@
   <h1>📆 Controle Financeiro</h1>
 </header>
 
-<!-- DASHBOARD -->
 <section class="dashboard">
   <div class="card pendente">
     <h3>Pendentes</h3>
     <span id="dashPendentes">0</span>
   </div>
-
   <div class="card feito">
     <h3>Pagas</h3>
     <span id="dashFeitas">0</span>
   </div>
-
   <div class="card vencida">
     <h3>Vencidas</h3>
     <span id="dashVencidas">0</span>
   </div>
 </section>
 
-<!-- GRÁFICO -->
 <section class="grafico-box">
   <canvas id="grafico"></canvas>
 </section>
 
-<!-- NOVA CONTA -->
 <section class="novo">
   <h2>➕ Nova Conta</h2>
-
   <form id="formConta">
     <input id="descricao" placeholder="Descrição" required />
     <input id="vencimento" type="date" required />
-
-    <label class="recorrente">
+    <label>
       <input type="checkbox" id="recorrente" />
       Recorrente
     </label>
-
-    <button type="submit">Salvar</button>
+    <button>Salvar</button>
   </form>
 </section>
 
-<!-- TOPO DO CALENDÁRIO -->
-<section class="cal-topo">
+<!-- TOPO CALENDÁRIO -->
+<section class="cal-topo google-topo">
   <button id="mesAnterior">◀</button>
   <span id="mesAno"></span>
   <button id="proximoMes">▶</button>
@@ -73,8 +65,13 @@
 </section>
 
 <!-- CALENDÁRIO -->
-<section class="calendar-container">
-  <div class="grid-calendario" id="gridCalendario"></div>
+<section class="calendar-container google-calendar">
+  <div class="dias-semana">
+    <div>Dom</div><div>Seg</div><div>Ter</div>
+    <div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+  </div>
+
+  <div id="gridCalendario" class="calendar-grid"></div>
 </section>
 
 </body>
