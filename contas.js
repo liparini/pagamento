@@ -1,5 +1,4 @@
 import { db, auth } from "./firebase.js";
-
 import {
   collection,
   addDoc,
@@ -15,17 +14,18 @@ import {
 import { onAuthStateChanged } from
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+let uid = null;
+let contasCache = [];
+let chart = null;
+
 const form = document.getElementById("formConta");
 const lista = document.getElementById("listaContas");
 const graficoEl = document.getElementById("grafico");
 
-let uid = null;
-let chart = null;
-
 onAuthStateChanged(auth, (user) => {
   if (user) {
     uid = user.uid;
-    carregarContas();
+    escutarContas();
   }
 });
 
@@ -44,68 +44,72 @@ form.addEventListener("submit", async (e) => {
   form.reset();
 });
 
-function carregarContas() {
+function escutarContas() {
   const q = query(collection(db, "contas"), where("uid", "==", uid));
 
   onSnapshot(q, (snapshot) => {
-    lista.innerHTML = "";
+    contasCache = snapshot.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
 
-    let feitas = 0;
-    let pendentes = 0;
-    let vencidas = 0;
-
-    const hoje = new Date().toISOString().split("T")[0];
-
-    snapshot.forEach((docSnap) => {
-      const c = docSnap.data();
-      let statusClass = "pendente";
-
-      if (c.status === "feito") feitas++;
-      else if (c.vencimento < hoje) {
-        vencidas++;
-        statusClass = "vencida";
-      } else pendentes++;
-
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <div class="item ${statusClass}">
-          <div>
-            <b contenteditable="true">${c.descricao}</b><br>
-            <small>${c.vencimento}</small>
-          </div>
-
-          <div class="acoes">
-            <button class="ok">✔</button>
-            <button class="editar">✏️</button>
-            <button class="excluir">🗑️</button>
-          </div>
-        </div>
-      `;
-
-      // ✔ feito / desfazer
-      li.querySelector(".ok").onclick = () =>
-        updateDoc(doc(db, "contas", docSnap.id), {
-          status: c.status === "feito" ? "pendente" : "feito"
-        });
-
-      // ✏️ editar
-      li.querySelector(".editar").onclick = () => {
-        const novoNome = prompt("Editar descrição:", c.descricao);
-        if (novoNome)
-          updateDoc(doc(db, "contas", docSnap.id), { descricao: novoNome });
-      };
-
-      // 🗑️ excluir
-      li.querySelector(".excluir").onclick = () =>
-        confirm("Excluir conta?")
-          ? deleteDoc(doc(db, "contas", docSnap.id))
-          : null;
-
-      lista.appendChild(li);
-    });
-
-    atualizarGrafico(feitas, pendentes, vencidas);
+    renderizarLista(contasCache);
+    atualizarDashboard(contasCache);
   });
+}
+
+function renderizarLista(contas) {
+  lista.innerHTML = "";
+  const hoje = new Date();
+
+  contas.forEach(c => {
+    const venc = new Date(c.vencimento);
+    let statusClass = "pendente";
+
+    if (c.status === "feito") statusClass = "feito";
+    else if (venc < hoje) statusClass = "vencida";
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div class="item ${statusClass}">
+        <div>
+          <b>${c.descricao}</b><br>
+          <small>${c.vencimento}</small>
+        </div>
+
+        <div class="acoes">
+          <button class="ok">✔</button>
+          <button class="editar">✏️</button>
+          <button class="excluir">🗑️</button>
+        </div>
+      </div>
+    `;
+
+    li.querySelector(".ok").onclick = () =>
+      updateDoc(doc(db, "contas", c.id), {
+        status: c.status === "feito" ? "pendente" : "feito"
+      });
+
+    li.querySelector(".editar").onclick = () => editarConta(c);
+    li.querySelector(".excluir").onclick = () =>
+      confirm("Excluir conta?") && deleteDoc(doc(db, "contas", c.id));
+
+    lista.appendChild(li);
+  });
+}
+
+function atualizarDashboard(contas) {
+  let feitas = 0, pendentes = 0, vencidas = 0;
+  const hoje = new Date();
+
+  contas.forEach(c => {
+    const venc = new Date(c.vencimento);
+    if (c.status === "feito") feitas++;
+    else if (venc < hoje) vencidas++;
+    else pendentes++;
+  });
+
+  atualizarGrafico(feitas, pendentes, vencidas);
 }
 
 function atualizarGrafico(feitas, pendentes, vencidas) {
@@ -117,8 +121,25 @@ function atualizarGrafico(feitas, pendentes, vencidas) {
       labels: ["Feitas", "Pendentes", "Vencidas"],
       datasets: [{
         data: [feitas, pendentes, vencidas],
-        backgroundColor: ["#2ecc71", "#f1c40f", "#e74c3c"]
+        backgroundColor: ["#16a34a", "#2563eb", "#dc2626"]
       }]
+    },
+    options: {
+      plugins: {
+        legend: { position: "bottom" }
+      }
     }
+  });
+}
+
+function editarConta(conta) {
+  const novaDescricao = prompt("Descrição:", conta.descricao);
+  const novoVenc = prompt("Vencimento (YYYY-MM-DD):", conta.vencimento);
+
+  if (!novaDescricao || !novoVenc) return;
+
+  updateDoc(doc(db, "contas", conta.id), {
+    descricao: novaDescricao,
+    vencimento: novoVenc
   });
 }
