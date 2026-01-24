@@ -76,6 +76,9 @@ function renderizarCalendario() {
         contaDiv.className = `conta-cal ${c.status}`;
         contaDiv.textContent = c.descricao;
         divDia.appendChild(contaDiv);
+
+        divDia.onclick = () => abrirDia(dataStr);
+
       }
     });
 window.abrirDia = function(dataStr) {
@@ -103,4 +106,5 @@ window.fecharModal = () =>
     grid.appendChild(divDia);
   }
 }
+
 
