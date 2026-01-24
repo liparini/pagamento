@@ -92,6 +92,50 @@ body {
   outline: 2px dashed #2563eb;
 }
 
+.calendar-container {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.calendar-day {
+  min-height: 100px;
+  border: 1px solid #ddd;
+  padding: 4px;
+  font-size: 13px;
+}
+
+.calendar-day header {
+  font-weight: bold;
+}
+
+.event {
+  background: #1a73e8;
+  color: #fff;
+  padding: 4px;
+  border-radius: 4px;
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.event.pago {
+  background: #34a853;
+}
+
 .conta-cal.vencida { background: #fde2e2 }
 .conta-cal.feito { background: #dcfce7 }
 .conta-cal.pendente { background: #e8f0fe }
+
