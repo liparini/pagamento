@@ -14,14 +14,21 @@ import {
 import { onAuthStateChanged } from
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-let uid = null;
-let contasCache = [];
-let chart = null;
-
+// ===== ELEMENTOS =====
 const form = document.getElementById("formConta");
 const lista = document.getElementById("listaContas");
 const graficoEl = document.getElementById("grafico");
 
+const descricao = document.getElementById("descricao");
+const vencimento = document.getElementById("vencimento");
+const recorrente = document.getElementById("recorrente");
+
+// ===== ESTADO =====
+let uid = null;
+let contasCache = [];
+let chart = null;
+
+// ===== AUTH =====
 onAuthStateChanged(auth, (user) => {
   if (user) {
     uid = user.uid;
@@ -29,6 +36,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
+// ===== CADASTRO =====
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -44,6 +52,7 @@ form.addEventListener("submit", async (e) => {
   form.reset();
 });
 
+// ===== FIRESTORE =====
 function escutarContas() {
   const q = query(collection(db, "contas"), where("uid", "==", uid));
 
@@ -58,16 +67,16 @@ function escutarContas() {
   });
 }
 
+// ===== LISTA =====
 function renderizarLista(contas) {
   lista.innerHTML = "";
-  const hoje = new Date();
+  const hoje = new Date().toISOString().split("T")[0];
 
   contas.forEach(c => {
-    const venc = new Date(c.vencimento);
     let statusClass = "pendente";
 
     if (c.status === "feito") statusClass = "feito";
-    else if (venc < hoje) statusClass = "vencida";
+    else if (c.vencimento < hoje) statusClass = "vencida";
 
     const li = document.createElement("li");
     li.innerHTML = `
@@ -98,21 +107,23 @@ function renderizarLista(contas) {
   });
 }
 
+// ===== DASHBOARD =====
 function atualizarDashboard(contas) {
   let feitas = 0, pendentes = 0, vencidas = 0;
-  const hoje = new Date();
+  const hoje = new Date().toISOString().split("T")[0];
 
   contas.forEach(c => {
-    const venc = new Date(c.vencimento);
     if (c.status === "feito") feitas++;
-    else if (venc < hoje) vencidas++;
+    else if (c.vencimento < hoje) vencidas++;
     else pendentes++;
   });
 
   atualizarGrafico(feitas, pendentes, vencidas);
 }
 
+// ===== GRÁFICO =====
 function atualizarGrafico(feitas, pendentes, vencidas) {
+  if (!graficoEl) return;
   if (chart) chart.destroy();
 
   chart = new Chart(graficoEl, {
@@ -132,6 +143,7 @@ function atualizarGrafico(feitas, pendentes, vencidas) {
   });
 }
 
+// ===== EDITAR =====
 function editarConta(conta) {
   const novaDescricao = prompt("Descrição:", conta.descricao);
   const novoVenc = prompt("Vencimento (YYYY-MM-DD):", conta.vencimento);
