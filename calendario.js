@@ -51,6 +51,18 @@ function renderizarCalendario() {
     year: "numeric"
   });
 
+  document.getElementById("filtroRecorrente").onchange = renderizarCalendario;
+
+function renderizarCalendario() {
+  const somenteRecorrentes = document.getElementById("filtroRecorrente").checked;
+
+  const contas = somenteRecorrentes
+    ? contasCache.filter(c => c.recorrente)
+    : contasCache;
+
+  // use "contas" no lugar de contasCache
+}
+
   const primeiroDia = new Date(ano, mes, 1).getDay();
   const totalDias = new Date(ano, mes + 1, 0).getDate();
 
@@ -119,6 +131,7 @@ window.fecharModal = () =>
     grid.appendChild(divDia);
   }
 }
+
 
 
 
