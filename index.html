@@ -22,19 +22,21 @@
 <main class="container">
 
   <!-- DASHBOARD -->
-  <section class="dashboard">
-    <h2>📊 Dashboard Financeiro</h2>
-    <div class="grafico">
-      <canvas id="graficoPizza"></canvas>
-    </div>
+<section id="dashboard" class="dashboard">
+  <h2>📊 Dashboard Financeiro</h2>
 
-    <div class="resumo">
-      <div class="card total">Total: <span id="totalContas">0</span></div>
-      <div class="card pagas">Pagas: <span id="contasPagas">0</span></div>
-      <div class="card vencendo">Vencendo: <span id="contasVencendo">0</span></div>
-      <div class="card vencidas">Vencidas: <span id="contasVencidas">0</span></div>
-    </div>
-  </section>
+  <div class="cards">
+    <div class="card total">Total<br><strong id="totalContas">0</strong></div>
+    <div class="card pagas">Pagas<br><strong id="contasPagas">0</strong></div>
+    <div class="card abertas">A Pagar<br><strong id="contasAbertas">0</strong></div>
+    <div class="card vencidas">Vencidas<br><strong id="contasVencidas">0</strong></div>
+  </div>
+
+  <div class="grafico-container">
+    <canvas id="graficoPizza"></canvas>
+  </div>
+</section>
+
 
   <!-- CONTEÚDO -->
   <section class="conteudo">
@@ -86,3 +88,4 @@
 
 </body>
 </html>
+
