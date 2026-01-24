@@ -1,65 +1,80 @@
 body {
   font-family: Arial, sans-serif;
-  background: #f5f6fa;
+  background: #f8fafc;
   margin: 0;
 }
 
-header {
-  background: #2c3e50;
+.topo {
+  background: #1a73e8;
   color: white;
-  padding: 10px;
+  padding: 15px;
 }
 
-#dashboard {
-  background: white;
-  margin: 10px;
-  padding: 10px;
-  border-radius: 6px;
+.novo {
+  background: #fff;
+  padding: 15px;
 }
 
-.nav-cal {
+.cal-topo {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
+  padding: 10px;
 }
 
-#gridCalendario {
+.calendario {
+  margin: 10px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.semana, .grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  margin-top: 10px;
+}
+
+.semana span {
+  background: #f1f3f4;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
 }
 
 .dia {
-  background: white;
-  border: 1px solid #ddd;
+  border: 1px solid #e5e7eb;
   min-height: 120px;
-  padding: 4px;
+  padding: 5px;
 }
 
-.numero-dia {
+.dia span {
   font-size: 12px;
-  color: #555;
+  font-weight: bold;
 }
 
-.evento {
+.conta-cal {
   margin-top: 4px;
-  padding: 4px;
+  padding: 3px 5px;
   border-radius: 4px;
   font-size: 12px;
-  cursor: grab;
+  background: #e8f0fe;
 }
 
-.evento.pendente { background: #f1c40f; }
-.evento.feito { background: #2ecc71; color: white; }
-.evento.vencida { background: #e74c3c; color: white; }
-
-.hidden {
-  display: none;
-}
+.conta-cal.vencida { background: #fde2e2 }
+.conta-cal.feito { background: #dcfce7 }
 
 .modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+}
+
+.modal-content {
   background: white;
   padding: 20px;
-  border-radius: 6px;
+  margin: 80px auto;
+  width: 300px;
+  border-radius: 8px;
 }
+
+.hidden { display: none }
