@@ -172,9 +172,29 @@ ul {
   border-radius: 10px;
 }
 
-.conta-cal.pendente { background: #2563eb; }
-.conta-cal.vencida { background: #dc2626; }
-.conta-cal.feito { background: #16a34a; }
+.dia {
+  background: #fff;
+  border-radius: 8px;
+  padding: 5px;
+  min-height: 100px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+
+.dia:hover {
+  background: #f8fafc;
+}
+
+.conta-cal {
+  margin-top: 4px;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.conta-cal.pendente { background: #2563eb; color:#fff; }
+.conta-cal.vencida { background: #dc2626; color:#fff; }
+.conta-cal.feito { background: #16a34a; color:#fff; }
 
 
 
