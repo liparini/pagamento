@@ -1,63 +1,47 @@
-import { db } from "./firebase.js";
+import { db, auth } from "./firebase.js";
 import {
-  collection,
-  query,
-  where,
-  onSnapshot
+  collection, query, where, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import Chart from "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js";
+import { onAuthStateChanged } from
+  "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-let grafico = null;
+import Chart from "https://cdn.jsdelivr.net/npm/chart.js";
 
-export function atualizarDashboard(contas) {
-  const hoje = new Date();
+let chart = null;
 
-  let pagas = 0;
-  let abertas = 0;
-  let vencidas = 0;
+onAuthStateChanged(auth, user => {
+  if (!user) return;
 
-  contas.forEach(c => {
-    const venc = new Date(c.vencimento);
+  const q = query(collection(db, "contas"), where("uid", "==", user.uid));
+  onSnapshot(q, snap => {
+    let feito = 0, pendente = 0, vencida = 0;
+    const hoje = new Date().toISOString().split("T")[0];
 
-    if (c.status === "paga") {
-      pagas++;
-    } else if (venc < hoje) {
-      vencidas++;
-    } else {
-      abertas++;
-    }
+    snap.forEach(d => {
+      const c = d.data();
+      if (c.status === "feito") feito++;
+      else if (c.vencimento < hoje) vencida++;
+      else pendente++;
+    });
+
+    renderGrafico(feito, pendente, vencida);
   });
+});
 
-  document.getElementById("totalContas").textContent = contas.length;
-  document.getElementById("contasPagas").textContent = pagas;
-  document.getElementById("contasAbertas").textContent = abertas;
-  document.getElementById("contasVencidas").textContent = vencidas;
-
-  renderizarGrafico(pagas, abertas, vencidas);
-}
-
-function renderizarGrafico(pagas, abertas, vencidas) {
+function renderGrafico(f, p, v) {
   const ctx = document.getElementById("graficoPizza");
 
-  if (grafico) grafico.destroy();
+  if (chart) chart.destroy();
 
-  grafico = new Chart(ctx, {
+  chart = new Chart(ctx, {
     type: "pie",
     data: {
-      labels: ["Pagas", "A Pagar", "Vencidas"],
+      labels: ["Feitas", "Pendentes", "Vencidas"],
       datasets: [{
-        data: [pagas, abertas, vencidas],
-        backgroundColor: ["#16a34a", "#2563eb", "#dc2626"]
+        data: [f, p, v],
+        backgroundColor: ["#2ecc71", "#f1c40f", "#e74c3c"]
       }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: "bottom"
-        }
-      }
     }
   });
 }
