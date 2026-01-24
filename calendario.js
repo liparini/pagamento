@@ -1,4 +1,5 @@
 import { db, auth } from "./firebase.js";
+import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
   collection,
   query,
@@ -99,6 +100,18 @@ window.abrirDia = function(dataStr) {
       ul.appendChild(li);
     });
 };
+    contaDiv.draggable = true;
+
+contaDiv.ondragstart = e => {
+  e.dataTransfer.setData("id", c.id);
+};
+
+divDia.ondragover = e => e.preventDefault();
+
+divDia.ondrop = e => {
+  const id = e.dataTransfer.getData("id");
+  updateDoc(doc(db, "contas", id), { vencimento: dataStr });
+};
 
 window.fecharModal = () =>
   document.getElementById("modalDia").classList.add("hidden");
@@ -106,5 +119,6 @@ window.fecharModal = () =>
     grid.appendChild(divDia);
   }
 }
+
 
 
