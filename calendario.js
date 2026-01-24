@@ -8,10 +8,12 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+/* ================= ESTADO ================= */
 let dataAtual = new Date();
 let contasCache = [];
 let uid = null;
 
+/* ================= ELEMENTOS ================= */
 const mesAno = document.getElementById("mesAno");
 const grid = document.getElementById("gridCalendario");
 const filtroRecorrente = document.getElementById("filtroRecorrente");
@@ -34,8 +36,6 @@ function ouvirContas() {
   onSnapshot(q, snap => {
     contasCache = snap.docs.map(d => ({
       id: d.id,
-      pago: false,
-      recorrencia: null,
       ...d.data()
     }));
     renderizarCalendario();
@@ -48,28 +48,12 @@ function mudarMes(delta) {
   renderizarCalendario();
 }
 
-/* ================= RECORRÊNCIA ================= */
-function ocorreNoDia(c, dataStr) {
-  if (!c.recorrencia) return c.data === dataStr;
-
-  const base = new Date(c.data);
-  const atual = new Date(dataStr);
-
-  if (c.recorrencia.tipo === "mensal")
-    return base.getDate() === atual.getDate();
-
-  if (c.recorrencia.tipo === "semanal")
-    return base.getDay() === atual.getDay();
-
-  return false;
-}
-
 /* ================= CALENDÁRIO ================= */
 function renderizarCalendario() {
   grid.innerHTML = "";
 
   const contas = filtroRecorrente.checked
-    ? contasCache.filter(c => c.recorrencia)
+    ? contasCache.filter(c => c.recorrente)
     : contasCache;
 
   const ano = dataAtual.getFullYear();
@@ -95,24 +79,35 @@ function renderizarCalendario() {
       `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
 
     contas.forEach(c => {
-      if (ocorreNoDia(c, dataStr)) {
+      if (c.vencimento === dataStr) {
         const ev = document.createElement("div");
-        ev.className = `evento ${c.pago ? "pago" : ""}`;
+        ev.className = `evento ${c.status === "feito" ? "feito" : "pendente"}`;
 
         ev.innerHTML = `
           <div contenteditable="true"
                class="editavel"
                data-id="${c.id}">
-            ${c.titulo}
+            ${c.descricao}
           </div>
 
-          <small>R$ ${Number(c.valor || 0).toFixed(2)}</small>
-
           <div class="acoes">
-            <button data-pago="${c.id}">✔</button>
+            <button data-pago="${c.id}">
+              ${c.status === "feito" ? "↩" : "✔"}
+            </button>
             <button data-del="${c.id}">🗑</button>
           </div>
         `;
+
+        // Drag & Drop (estilo Google)
+        ev.draggable = true;
+        ev.ondragstart = e =>
+          e.dataTransfer.setData("id", c.id);
+
+        div.ondragover = e => e.preventDefault();
+        div.ondrop = e => {
+          const id = e.dataTransfer.getData("id");
+          updateDoc(doc(db, "contas", id), { vencimento: dataStr });
+        };
 
         div.appendChild(ev);
       }
@@ -122,21 +117,24 @@ function renderizarCalendario() {
   }
 }
 
-/* ================= AÇÕES INLINE ================= */
+/* ================= EDIÇÃO INLINE ================= */
 document.addEventListener("blur", async e => {
   if (e.target.classList.contains("editavel")) {
     const id = e.target.dataset.id;
     await updateDoc(doc(db, "contas", id), {
-      titulo: e.target.innerText.trim()
+      descricao: e.target.innerText.trim()
     });
   }
 }, true);
 
+/* ================= AÇÕES ================= */
 document.addEventListener("click", async e => {
   if (e.target.dataset.pago) {
-    const ref = doc(db, "contas", e.target.dataset.pago);
-    const conta = contasCache.find(c => c.id === e.target.dataset.pago);
-    await updateDoc(ref, { pago: !conta.pago });
+    const id = e.target.dataset.pago;
+    const conta = contasCache.find(c => c.id === id);
+    await updateDoc(doc(db, "contas", id), {
+      status: conta.status === "feito" ? "pendente" : "feito"
+    });
   }
 
   if (e.target.dataset.del) {
