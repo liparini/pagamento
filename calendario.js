@@ -94,6 +94,13 @@ function renderizarCalendario() {
 
       }
     });
+
+    contaDiv.ondblclick = () => {
+  const novoNome = prompt("Editar descrição:", c.descricao);
+  if (novoNome)
+    updateDoc(doc(db, "contas", c.id), { descricao: novoNome });
+};
+
 window.abrirDia = function(dataStr) {
   document.getElementById("modalDia").classList.remove("hidden");
   document.getElementById("tituloDia").textContent = dataStr;
@@ -131,6 +138,7 @@ window.fecharModal = () =>
     grid.appendChild(divDia);
   }
 }
+
 
 
 
