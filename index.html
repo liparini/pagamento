@@ -3,43 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <title>Controle de Contas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <header>
-  <h1>📅 Controle de Contas</h1>
+  <h1>📊 Controle de Contas</h1>
+  <button id="btnLogin">Entrar com Google</button>
+  <button id="btnLogout" class="hidden">Sair</button>
 </header>
 
-<section id="dashboard">
-  <canvas id="graficoPizza"></canvas>
-</section>
+<main class="hidden" id="app">
 
-<section id="controle">
-  <div class="nav-cal">
-    <button id="mesAnterior">◀</button>
-    <h2 id="mesAno"></h2>
-    <button id="proximoMes">▶</button>
-    <label>
-      <input type="checkbox" id="filtroRecorrente" /> Recorrentes
-    </label>
-  </div>
+  <!-- DASHBOARD -->
+  <section class="dashboard">
+    <canvas id="grafico"></canvas>
 
-  <div id="gridCalendario"></div>
-</section>
+    <div class="resumo">
+      <div>Total mês: <span id="totalMes">R$ 0,00</span></div>
+      <div>Pago: <span id="totalPago">R$ 0,00</span></div>
+      <div>Em aberto: <span id="totalAberto">R$ 0,00</span></div>
+    </div>
+  </section>
 
-<!-- MODAL -->
-<div id="modalDia" class="hidden">
-  <div class="modal">
-    <h3 id="tituloDia"></h3>
-    <ul id="listaDia"></ul>
-    <button onclick="fecharModal()">Fechar</button>
-  </div>
-</div>
+  <!-- CADASTRO -->
+  <section class="cadastro">
+    <h2>Nova Conta</h2>
+    <form id="formConta">
+      <input id="descricao" placeholder="Descrição" required />
+      <input id="valor" type="number" placeholder="Valor" required />
+      <input id="vencimento" type="date" required />
+      <label>
+        <input type="checkbox" id="recorrente" /> Recorrente
+      </label>
+      <button>Salvar</button>
+    </form>
+  </section>
 
+  <!-- LISTA -->
+  <section>
+    <h2>Minhas Contas</h2>
+    <ul id="listaContas"></ul>
+  </section>
+
+</main>
+
+<script type="module" src="firebase.js"></script>
 <script type="module" src="auth.js"></script>
-<script type="module" src="calendario.js"></script>
-<script type="module" src="dashboard.js"></script>
+<script type="module" src="contas.js"></script>
 
 </body>
 </html>
