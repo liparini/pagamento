@@ -1,122 +1,45 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Controle Financeiro</title>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Ícones -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Controle de Contas</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<header class="topo">
-  <h1>💰 Controle de Contas</h1>
-  <button id="logoutBtn">Sair</button>
+<header>
+  <h1>📅 Controle de Contas</h1>
 </header>
 
-<main class="container">
-
-  <!-- DASHBOARD -->
-<section id="dashboard" class="dashboard">
-  <h2>📊 Dashboard Financeiro</h2>
-
-  <div class="cards">
-    <div class="card total">Total<br><strong id="totalContas">0</strong></div>
-    <div class="card pagas">Pagas<br><strong id="contasPagas">0</strong></div>
-    <div class="card abertas">A Pagar<br><strong id="contasAbertas">0</strong></div>
-    <div class="card vencidas">Vencidas<br><strong id="contasVencidas">0</strong></div>
-  </div>
-
-  <div class="grafico-container">
-    <canvas id="graficoPizza"></canvas>
-  </div>
+<section id="dashboard">
+  <canvas id="graficoPizza"></canvas>
 </section>
 
-  <section class="calendario">
-  <div class="cal-header">
+<section id="controle">
+  <div class="nav-cal">
     <button id="mesAnterior">◀</button>
     <h2 id="mesAno"></h2>
     <button id="proximoMes">▶</button>
+    <label>
+      <input type="checkbox" id="filtroRecorrente" /> Recorrentes
+    </label>
   </div>
 
-  <div class="grid-semana">
-    <div>Dom</div><div>Seg</div><div>Ter</div>
-    <div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-  </div>
-    
-<div id="modalDia" class="modal hidden">
-  <div class="modal-content">
+  <div id="gridCalendario"></div>
+</section>
+
+<!-- MODAL -->
+<div id="modalDia" class="hidden">
+  <div class="modal">
     <h3 id="tituloDia"></h3>
     <ul id="listaDia"></ul>
     <button onclick="fecharModal()">Fechar</button>
   </div>
 </div>
 
-  <div id="gridCalendario" class="grid-calendario"></div>
-</section>
-
-  <label>
-  <input type="checkbox" id="filtroRecorrente">
-  Mostrar apenas recorrentes
-</label>
-
-
-  <!-- CONTEÚDO -->
-  <section class="conteudo">
-
-    <!-- CADASTRO -->
-    <aside class="cadastro">
-      <h2>➕ Cadastrar Conta</h2>
-
-      <form id="formConta">
-        <input type="text" id="descricao" placeholder="Descrição da conta" required>
-        <input type="date" id="vencimento" required>
-
-        <label class="checkbox">
-          <input type="checkbox" id="recorrente">
-          Recorrência mensal
-        </label>
-
-        <button type="submit">Salvar Conta</button>
-      </form>
-    </aside>
-
-    <!-- LISTAGEM -->
-    <section class="lista">
-      <h2>📋 Minhas Contas</h2>
-
-      <div class="filtros">
-        <select id="filtroStatus">
-          <option value="todas">Todas</option>
-          <option value="pagas">Pagas</option>
-          <option value="vencendo">Vencendo</option>
-          <option value="vencidas">Vencidas</option>
-        </select>
-      </div>
-
-      <ul id="listaContas">
-        <!-- Contas renderizadas via JS -->
-      </ul>
-    </section>
-
-  </section>
-
-</main>
-
-<!-- SCRIPTS -->
-<script type="module" src="firebase.js"></script>
 <script type="module" src="auth.js"></script>
-<script type="module" src="contas.js"></script>
+<script type="module" src="calendario.js"></script>
 <script type="module" src="dashboard.js"></script>
 
 </body>
 </html>
-
-
-
-
