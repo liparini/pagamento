@@ -10,6 +10,35 @@ body {
   padding: 15px;
 }
 
+/* DASHBOARD */
+.dashboard {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+}
+
+.card {
+  flex: 1;
+  padding: 15px;
+  border-radius: 8px;
+  color: white;
+  text-align: center;
+}
+
+.card span {
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.pendente { background: #2563eb }
+.feito { background: #16a34a }
+.vencida { background: #dc2626 }
+
+.grafico-box {
+  max-width: 400px;
+  margin: auto;
+}
+
 .novo {
   background: #fff;
   padding: 15px;
@@ -26,7 +55,6 @@ body {
   margin: 10px;
   background: white;
   border-radius: 8px;
-  overflow: hidden;
 }
 
 .semana, .grid {
@@ -54,27 +82,16 @@ body {
 
 .conta-cal {
   margin-top: 4px;
-  padding: 3px 5px;
+  padding: 4px;
   border-radius: 4px;
   font-size: 12px;
-  background: #e8f0fe;
+  cursor: pointer;
+}
+
+.conta-cal[contenteditable] {
+  outline: 2px dashed #2563eb;
 }
 
 .conta-cal.vencida { background: #fde2e2 }
 .conta-cal.feito { background: #dcfce7 }
-
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.5);
-}
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  margin: 80px auto;
-  width: 300px;
-  border-radius: 8px;
-}
-
-.hidden { display: none }
+.conta-cal.pendente { background: #e8f0fe }
