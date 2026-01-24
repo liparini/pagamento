@@ -130,3 +130,13 @@ body {
 .evento.vencida {
   background: #dc2626;
 }
+
+.grafico-box {
+  max-width: 400px;     /* controla o tamanho */
+  margin: 20px auto;    /* centraliza */
+}
+
+.grafico-box canvas {
+  width: 100% !important;
+  height: auto !important;
+}
