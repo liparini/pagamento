@@ -1,36 +1,60 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Controle de Contas</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { font-family: Arial; padding: 20px }
-    .item { display:flex; justify-content:space-between; margin:8px 0 }
-    .feito { text-decoration: line-through; color: green }
-    .vencida { color: red }
-    input.inline { border:none; border-bottom:1px dashed #999; margin-right:6px }
-  </style>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase -->
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="contas.js" defer></script>
 </head>
 <body>
 
-<h2>Nova Conta</h2>
-<form id="formConta">
-  <input id="descricao" placeholder="Descrição" required>
-  <input id="vencimento" type="date" required>
-  <input id="valor" type="number" step="0.01" placeholder="Valor" required>
-  <button>Adicionar</button>
-</form>
+<header class="topo">
+  <h1>📆 Controle Financeiro</h1>
+</header>
 
-<h2>Contas</h2>
-<ul id="listaContas"></ul>
+<section class="novo">
+  <h2>➕ Nova Conta</h2>
+  <form id="formConta">
+    <input id="descricao" placeholder="Descrição" required />
+    <input id="vencimento" type="date" required />
+    <label>
+      <input type="checkbox" id="recorrente" /> Recorrente mensal
+    </label>
+    <button>Salvar</button>
+  </form>
+</section>
 
-<h2>Resumo Mensal</h2>
-<select id="mesFiltro"></select>
-<p id="totais"></p>
+<section class="cal-topo">
+  <button id="mesAnterior">◀</button>
+  <span id="mesAno"></span>
+  <button id="proximoMes">▶</button>
 
-<canvas id="grafico"></canvas>
+  <label>
+    <input type="checkbox" id="filtroRecorrente" />
+    Somente recorrentes
+  </label>
+</section>
 
-<script type="module" src="./app.js"></script>
+<section class="calendario">
+  <div class="semana">
+    <span>Dom</span><span>Seg</span><span>Ter</span>
+    <span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+  </div>
+  <div id="gridCalendario" class="grid"></div>
+</section>
+
+<!-- MODAL DIA -->
+<div id="modalDia" class="modal hidden">
+  <div class="modal-content">
+    <h3 id="tituloDia"></h3>
+    <ul id="listaDia"></ul>
+    <button onclick="fecharModal()">Fechar</button>
+  </div>
+</div>
+
 </body>
 </html>
