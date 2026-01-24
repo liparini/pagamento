@@ -6,13 +6,14 @@
 
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Chart -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Firebase -->
   <script type="module" src="firebase.js"></script>
   <script type="module" src="contas.js" defer></script>
 </head>
+
 <body>
 
 <header class="topo">
@@ -25,54 +26,56 @@
     <h3>Pendentes</h3>
     <span id="dashPendentes">0</span>
   </div>
+
   <div class="card feito">
     <h3>Pagas</h3>
     <span id="dashFeitas">0</span>
   </div>
+
   <div class="card vencida">
     <h3>Vencidas</h3>
     <span id="dashVencidas">0</span>
   </div>
 </section>
 
+<!-- GRÁFICO -->
 <section class="grafico-box">
   <canvas id="grafico"></canvas>
 </section>
 
+<!-- NOVA CONTA -->
 <section class="novo">
   <h2>➕ Nova Conta</h2>
+
   <form id="formConta">
     <input id="descricao" placeholder="Descrição" required />
     <input id="vencimento" type="date" required />
-    <label>
-      <input type="checkbox" id="recorrente" /> Recorrente mensal
+
+    <label class="recorrente">
+      <input type="checkbox" id="recorrente" />
+      Recorrente
     </label>
-    <button>Salvar</button>
+
+    <button type="submit">Salvar</button>
   </form>
 </section>
 
+<!-- TOPO DO CALENDÁRIO -->
 <section class="cal-topo">
   <button id="mesAnterior">◀</button>
   <span id="mesAno"></span>
   <button id="proximoMes">▶</button>
 
-  <label>
+  <label class="filtro">
     <input type="checkbox" id="filtroRecorrente" />
     Somente recorrentes
   </label>
 </section>
 
+<!-- CALENDÁRIO -->
 <section class="calendar-container">
-  <div class="calendar-header">
-    <button id="prevMonth">◀</button>
-    <h2 id="calendarTitle"></h2>
-    <button id="nextMonth">▶</button>
-  </div>
-
-  <div class="calendar-grid" id="calendarGrid"></div>
+  <div class="grid-calendario" id="gridCalendario"></div>
 </section>
-
 
 </body>
 </html>
-
