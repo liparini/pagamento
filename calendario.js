@@ -1,11 +1,7 @@
 import { db, auth } from "./firebase.js";
 import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  doc,
-  updateDoc
+  collection, query, where, onSnapshot,
+  doc, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { onAuthStateChanged } from
@@ -21,9 +17,9 @@ const filtroRecorrente = document.getElementById("filtroRecorrente");
 
 document.getElementById("mesAnterior").onclick = () => mudarMes(-1);
 document.getElementById("proximoMes").onclick = () => mudarMes(1);
-filtroRecorrente.onchange = () => renderizarCalendario();
+filtroRecorrente.onchange = renderizarCalendario;
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, user => {
   if (user) {
     uid = user.uid;
     ouvirContas();
@@ -43,94 +39,58 @@ function mudarMes(delta) {
   renderizarCalendario();
 }
 
+function ocorreNoDia(c, dataStr) {
+  if (!c.recorrencia) return c.vencimento === dataStr;
+
+  const base = new Date(c.vencimento);
+  const atual = new Date(dataStr);
+
+  if (c.recorrencia.tipo === "mensal")
+    return base.getDate() === atual.getDate();
+
+  if (c.recorrencia.tipo === "semanal")
+    return base.getDay() === atual.getDay();
+
+  return false;
+}
+
 function renderizarCalendario() {
   grid.innerHTML = "";
 
   const contas = filtroRecorrente.checked
-    ? contasCache.filter(c => c.recorrente)
+    ? contasCache.filter(c => c.recorrencia)
     : contasCache;
 
   const ano = dataAtual.getFullYear();
   const mes = dataAtual.getMonth();
 
   mesAno.textContent = dataAtual.toLocaleDateString("pt-BR", {
-    month: "long",
-    year: "numeric"
+    month: "long", year: "numeric"
   });
 
   const primeiroDia = new Date(ano, mes, 1).getDay();
   const totalDias = new Date(ano, mes + 1, 0).getDate();
 
-  for (let i = 0; i < primeiroDia; i++) {
+  for (let i = 0; i < primeiroDia; i++)
     grid.appendChild(document.createElement("div"));
-  }
 
   for (let dia = 1; dia <= totalDias; dia++) {
-    const divDia = document.createElement("div");
-    divDia.className = "dia";
-    divDia.innerHTML = `<span>${dia}</span>`;
+    const div = document.createElement("div");
+    div.className = "dia";
+    div.innerHTML = `<div class="numero-dia">${dia}</div>`;
 
-    const dataStr = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-
-    divDia.onclick = () => abrirDia(dataStr);
+    const dataStr =
+      `${ano}-${String(mes+1).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
 
     contas.forEach(c => {
-      const diaConta = c.vencimento.split("-")[2];
-
-      if (
-        c.vencimento === dataStr ||
-        (c.recorrente && diaConta === String(dia).padStart(2, "0"))
-      ) {
-        const contaDiv = document.createElement("div");
-        contaDiv.className = `conta-cal ${c.status}`;
-        contaDiv.textContent = c.descricao;
-
-        // editar inline
-        contaDiv.ondblclick = (e) => {
-          e.stopPropagation();
-          const novoNome = prompt("Editar descrição:", c.descricao);
-          if (novoNome)
-            updateDoc(doc(db, "contas", c.id), { descricao: novoNome });
-        };
-
-        // drag & drop
-        contaDiv.draggable = true;
-        contaDiv.ondragstart = e =>
-          e.dataTransfer.setData("id", c.id);
-
-        divDia.ondragover = e => e.preventDefault();
-        divDia.ondrop = e => {
-          const id = e.dataTransfer.getData("id");
-          updateDoc(doc(db, "contas", id), { vencimento: dataStr });
-        };
-
-        divDia.appendChild(contaDiv);
+      if (ocorreNoDia(c, dataStr)) {
+        const ev = document.createElement("div");
+        ev.className = `evento ${c.status}`;
+        ev.textContent = c.descricao;
+        div.appendChild(ev);
       }
     });
 
-    grid.appendChild(divDia);
+    grid.appendChild(div);
   }
 }
-
-// ===== MODAL =====
-window.abrirDia = function (dataStr) {
-  document.getElementById("modalDia").classList.remove("hidden");
-  document.getElementById("tituloDia").textContent = dataStr;
-
-  const ul = document.getElementById("listaDia");
-  ul.innerHTML = "";
-
-  contasCache
-    .filter(c =>
-      c.vencimento === dataStr ||
-      (c.recorrente && c.vencimento.split("-")[2] === dataStr.split("-")[2])
-    )
-    .forEach(c => {
-      const li = document.createElement("li");
-      li.textContent = c.descricao;
-      ul.appendChild(li);
-    });
-};
-
-window.fecharModal = () =>
-  document.getElementById("modalDia").classList.add("hidden");
