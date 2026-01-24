@@ -4,40 +4,32 @@ import {
   addDoc,
   query,
   where,
-  onSnapshot,
-  updateDoc,
-  doc,
-  deleteDoc,
-  serverTimestamp
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { onAuthStateChanged } from
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// ===== ELEMENTOS =====
-const form = document.getElementById("formConta");
-const lista = document.getElementById("listaContas");
-const graficoEl = document.getElementById("grafico");
-
-const descricao = document.getElementById("descricao");
-const vencimento = document.getElementById("vencimento");
-const recorrente = document.getElementById("recorrente");
-
-// ===== ESTADO =====
 let uid = null;
 let contasCache = [];
-let chart = null;
+let dataAtual = new Date();
 
-// ===== AUTH =====
-onAuthStateChanged(auth, (user) => {
+const grid = document.getElementById("gridCalendario");
+const mesAno = document.getElementById("mesAno");
+const filtroRecorrente = document.getElementById("filtroRecorrente");
+
+document.getElementById("mesAnterior").onclick = () => mudarMes(-1);
+document.getElementById("proximoMes").onclick = () => mudarMes(1);
+filtroRecorrente.onchange = () => renderizarCalendario();
+
+onAuthStateChanged(auth, user => {
   if (user) {
     uid = user.uid;
-    escutarContas();
+    ouvirContas();
   }
 });
 
-// ===== CADASTRO =====
-form.addEventListener("submit", async (e) => {
+document.getElementById("formConta").onsubmit = async e => {
   e.preventDefault();
 
   await addDoc(collection(db, "contas"), {
@@ -45,113 +37,91 @@ form.addEventListener("submit", async (e) => {
     vencimento: vencimento.value,
     recorrente: recorrente.checked,
     status: "pendente",
-    uid,
-    criadoEm: serverTimestamp()
+    uid
   });
 
-  form.reset();
-});
+  e.target.reset();
+};
 
-// ===== FIRESTORE =====
-function escutarContas() {
+function ouvirContas() {
   const q = query(collection(db, "contas"), where("uid", "==", uid));
-
-  onSnapshot(q, (snapshot) => {
-    contasCache = snapshot.docs.map(d => ({
-      id: d.id,
-      ...d.data()
-    }));
-
-    renderizarLista(contasCache);
-    atualizarDashboard(contasCache);
+  onSnapshot(q, snap => {
+    contasCache = snap.docs.map(d => d.data());
+    renderizarCalendario();
   });
 }
 
-// ===== LISTA =====
-function renderizarLista(contas) {
-  lista.innerHTML = "";
-  const hoje = new Date().toISOString().split("T")[0];
-
-  contas.forEach(c => {
-    let statusClass = "pendente";
-
-    if (c.status === "feito") statusClass = "feito";
-    else if (c.vencimento < hoje) statusClass = "vencida";
-
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <div class="item ${statusClass}">
-        <div>
-          <b>${c.descricao}</b><br>
-          <small>${c.vencimento}</small>
-        </div>
-
-        <div class="acoes">
-          <button class="ok">✔</button>
-          <button class="editar">✏️</button>
-          <button class="excluir">🗑️</button>
-        </div>
-      </div>
-    `;
-
-    li.querySelector(".ok").onclick = () =>
-      updateDoc(doc(db, "contas", c.id), {
-        status: c.status === "feito" ? "pendente" : "feito"
-      });
-
-    li.querySelector(".editar").onclick = () => editarConta(c);
-    li.querySelector(".excluir").onclick = () =>
-      confirm("Excluir conta?") && deleteDoc(doc(db, "contas", c.id));
-
-    lista.appendChild(li);
-  });
+function mudarMes(delta) {
+  dataAtual.setMonth(dataAtual.getMonth() + delta);
+  renderizarCalendario();
 }
 
-// ===== DASHBOARD =====
-function atualizarDashboard(contas) {
-  let feitas = 0, pendentes = 0, vencidas = 0;
-  const hoje = new Date().toISOString().split("T")[0];
+function renderizarCalendario() {
+  grid.innerHTML = "";
 
-  contas.forEach(c => {
-    if (c.status === "feito") feitas++;
-    else if (c.vencimento < hoje) vencidas++;
-    else pendentes++;
+  const contas = filtroRecorrente.checked
+    ? contasCache.filter(c => c.recorrente)
+    : contasCache;
+
+  const ano = dataAtual.getFullYear();
+  const mes = dataAtual.getMonth();
+
+  mesAno.textContent = dataAtual.toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric"
   });
 
-  atualizarGrafico(feitas, pendentes, vencidas);
-}
+  const primeiroDia = new Date(ano, mes, 1).getDay();
+  const totalDias = new Date(ano, mes + 1, 0).getDate();
 
-// ===== GRÁFICO =====
-function atualizarGrafico(feitas, pendentes, vencidas) {
-  if (!graficoEl) return;
-  if (chart) chart.destroy();
+  for (let i = 0; i < primeiroDia; i++) {
+    grid.appendChild(document.createElement("div"));
+  }
 
-  chart = new Chart(graficoEl, {
-    type: "pie",
-    data: {
-      labels: ["Feitas", "Pendentes", "Vencidas"],
-      datasets: [{
-        data: [feitas, pendentes, vencidas],
-        backgroundColor: ["#16a34a", "#2563eb", "#dc2626"]
-      }]
-    },
-    options: {
-      plugins: {
-        legend: { position: "bottom" }
+  for (let dia = 1; dia <= totalDias; dia++) {
+    const divDia = document.createElement("div");
+    divDia.className = "dia";
+    divDia.innerHTML = `<span>${dia}</span>`;
+
+    const dataStr = `${ano}-${String(mes+1).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
+
+    contas.forEach(c => {
+      const diaConta = c.vencimento.split("-")[2];
+
+      if (
+        c.vencimento === dataStr ||
+        (c.recorrente && diaConta === String(dia).padStart(2,"0"))
+      ) {
+        const div = document.createElement("div");
+        div.className = `conta-cal ${c.status}`;
+        div.textContent = c.descricao;
+        divDia.appendChild(div);
       }
-    }
-  });
+    });
+
+    divDia.onclick = () => abrirDia(dataStr);
+    grid.appendChild(divDia);
+  }
 }
 
-// ===== EDITAR =====
-function editarConta(conta) {
-  const novaDescricao = prompt("Descrição:", conta.descricao);
-  const novoVenc = prompt("Vencimento (YYYY-MM-DD):", conta.vencimento);
+window.abrirDia = dataStr => {
+  document.getElementById("modalDia").classList.remove("hidden");
+  document.getElementById("tituloDia").textContent = dataStr;
 
-  if (!novaDescricao || !novoVenc) return;
+  const ul = document.getElementById("listaDia");
+  ul.innerHTML = "";
 
-  updateDoc(doc(db, "contas", conta.id), {
-    descricao: novaDescricao,
-    vencimento: novoVenc
-  });
-}
+  contasCache
+    .filter(c =>
+      c.vencimento === dataStr ||
+      (c.recorrente && c.vencimento.split("-")[2] === dataStr.split("-")[2])
+    )
+    .forEach(c => {
+      const li = document.createElement("li");
+      li.textContent = c.descricao;
+      ul.appendChild(li);
+    });
+};
+
+window.fecharModal = () =>
+  document.getElementById("modalDia").classList.add("hidden");
