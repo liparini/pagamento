@@ -2,9 +2,12 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Controle de Contas</title>
+  <title>Controle Financeiro</title>
 
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Firebase -->
   <script type="module" src="firebase.js"></script>
@@ -15,6 +18,26 @@
 <header class="topo">
   <h1>📆 Controle Financeiro</h1>
 </header>
+
+<!-- DASHBOARD -->
+<section class="dashboard">
+  <div class="card pendente">
+    <h3>Pendentes</h3>
+    <span id="dashPendentes">0</span>
+  </div>
+  <div class="card feito">
+    <h3>Pagas</h3>
+    <span id="dashFeitas">0</span>
+  </div>
+  <div class="card vencida">
+    <h3>Vencidas</h3>
+    <span id="dashVencidas">0</span>
+  </div>
+</section>
+
+<section class="grafico-box">
+  <canvas id="grafico"></canvas>
+</section>
 
 <section class="novo">
   <h2>➕ Nova Conta</h2>
@@ -46,15 +69,6 @@
   </div>
   <div id="gridCalendario" class="grid"></div>
 </section>
-
-<!-- MODAL DIA -->
-<div id="modalDia" class="modal hidden">
-  <div class="modal-content">
-    <h3 id="tituloDia"></h3>
-    <ul id="listaDia"></ul>
-    <button onclick="fecharModal()">Fechar</button>
-  </div>
-</div>
 
 </body>
 </html>
