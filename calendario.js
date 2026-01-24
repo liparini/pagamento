@@ -78,7 +78,29 @@ function renderizarCalendario() {
         divDia.appendChild(contaDiv);
       }
     });
+window.abrirDia = function(dataStr) {
+  document.getElementById("modalDia").classList.remove("hidden");
+  document.getElementById("tituloDia").textContent = dataStr;
+
+  const ul = document.getElementById("listaDia");
+  ul.innerHTML = "";
+
+  contasCache
+    .filter(c => c.vencimento === dataStr || (c.recorrente && c.vencimento.split("-")[2] === dataStr.split("-")[2]))
+    .forEach(c => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        ${c.descricao}
+        <button onclick="editarConta('${c.id}')">✏️</button>
+      `;
+      ul.appendChild(li);
+    });
+};
+
+window.fecharModal = () =>
+  document.getElementById("modalDia").classList.add("hidden");
 
     grid.appendChild(divDia);
   }
 }
+
