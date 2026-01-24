@@ -4,7 +4,9 @@ import {
   addDoc,
   query,
   where,
-  onSnapshot
+  onSnapshot,
+  updateDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { onAuthStateChanged } from
@@ -13,19 +15,20 @@ import { onAuthStateChanged } from
 let uid = null;
 let contasCache = [];
 let dataAtual = new Date();
+let chart = null;
 
 const grid = document.getElementById("gridCalendario");
 const mesAno = document.getElementById("mesAno");
-const filtroRecorrente = document.getElementById("filtroRecorrente");
 
-document.getElementById("mesAnterior").onclick = () => mudarMes(-1);
-document.getElementById("proximoMes").onclick = () => mudarMes(1);
-filtroRecorrente.onchange = () => renderizarCalendario();
+const dashPendentes = document.getElementById("dashPendentes");
+const dashFeitas = document.getElementById("dashFeitas");
+const dashVencidas = document.getElementById("dashVencidas");
 
 onAuthStateChanged(auth, user => {
   if (user) {
     uid = user.uid;
     ouvirContas();
+    pedirPermissaoNotificacao();
   }
 });
 
@@ -46,22 +49,14 @@ document.getElementById("formConta").onsubmit = async e => {
 function ouvirContas() {
   const q = query(collection(db, "contas"), where("uid", "==", uid));
   onSnapshot(q, snap => {
-    contasCache = snap.docs.map(d => d.data());
+    contasCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderizarCalendario();
+    atualizarDashboard();
   });
-}
-
-function mudarMes(delta) {
-  dataAtual.setMonth(dataAtual.getMonth() + delta);
-  renderizarCalendario();
 }
 
 function renderizarCalendario() {
   grid.innerHTML = "";
-
-  const contas = filtroRecorrente.checked
-    ? contasCache.filter(c => c.recorrente)
-    : contasCache;
 
   const ano = dataAtual.getFullYear();
   const mes = dataAtual.getMonth();
@@ -85,43 +80,73 @@ function renderizarCalendario() {
 
     const dataStr = `${ano}-${String(mes+1).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
 
-    contas.forEach(c => {
+    contasCache.forEach(c => {
       const diaConta = c.vencimento.split("-")[2];
 
-      if (
-        c.vencimento === dataStr ||
-        (c.recorrente && diaConta === String(dia).padStart(2,"0"))
-      ) {
+      if (c.vencimento === dataStr || (c.recorrente && diaConta == dia)) {
         const div = document.createElement("div");
         div.className = `conta-cal ${c.status}`;
         div.textContent = c.descricao;
+        div.contentEditable = true;
+
+        // ✏️ EDIÇÃO INLINE
+        div.onblur = () =>
+          updateDoc(doc(db, "contas", c.id), { descricao: div.textContent });
+
+        // 🔥 DRAG
+        div.draggable = true;
+        div.ondragstart = e =>
+          e.dataTransfer.setData("id", c.id);
+
         divDia.appendChild(div);
       }
     });
 
-    divDia.onclick = () => abrirDia(dataStr);
+    divDia.ondragover = e => e.preventDefault();
+    divDia.ondrop = e => {
+      const id = e.dataTransfer.getData("id");
+      updateDoc(doc(db, "contas", id), { vencimento: dataStr });
+    };
+
     grid.appendChild(divDia);
   }
 }
 
-window.abrirDia = dataStr => {
-  document.getElementById("modalDia").classList.remove("hidden");
-  document.getElementById("tituloDia").textContent = dataStr;
+function atualizarDashboard() {
+  let p = 0, f = 0, v = 0;
+  const hoje = new Date();
 
-  const ul = document.getElementById("listaDia");
-  ul.innerHTML = "";
+  contasCache.forEach(c => {
+    const venc = new Date(c.vencimento);
+    if (c.status === "feito") f++;
+    else if (venc < hoje) v++;
+    else p++;
+  });
 
-  contasCache
-    .filter(c =>
-      c.vencimento === dataStr ||
-      (c.recorrente && c.vencimento.split("-")[2] === dataStr.split("-")[2])
-    )
-    .forEach(c => {
-      const li = document.createElement("li");
-      li.textContent = c.descricao;
-      ul.appendChild(li);
-    });
-};
+  dashPendentes.textContent = p;
+  dashFeitas.textContent = f;
+  dashVencidas.textContent = v;
 
-window.fecharModal = () =>
-  document.getElementById("modalDia").classList.add("hidden");
+  atualizarGrafico(p, f, v);
+}
+
+function atualizarGrafico(p, f, v) {
+  if (chart) chart.destroy();
+
+  chart = new Chart(document.getElementById("grafico"), {
+    type: "doughnut",
+    data: {
+      labels: ["Pendentes", "Pagas", "Vencidas"],
+      datasets: [{
+        data: [p, f, v],
+        backgroundColor: ["#2563eb", "#16a34a", "#dc2626"]
+      }]
+    }
+  });
+}
+
+// 🔔 NOTIFICAÇÃO REAL
+function pedirPermissaoNotificacao() {
+  if ("Notification" in window)
+    Notification.requestPermission();
+}
